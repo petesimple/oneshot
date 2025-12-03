@@ -1,0 +1,744 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>One Puck Shot Trainer</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <style>
+    :root {
+      --bg: #05070b;
+      --panel: #141820;
+      --accent: #00e0ff;
+      --text-main: #f5f5f5;
+      --text-muted: #aaaaaa;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: radial-gradient(circle at top, #1a2340 0, #05070b 55%, #000 100%);
+      color: var(--text-main);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .app {
+      width: 100%;
+      max-width: 960px;
+      padding: 16px;
+    }
+
+    header {
+      text-align: center;
+      margin-bottom: 16px;
+    }
+
+    header h1 {
+      font-size: 1.8rem;
+      margin: 0;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    header p {
+      margin: 4px 0 0;
+      font-size: 0.9rem;
+      color: var(--text-muted);
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: minmax(0, 2.2fr) minmax(0, 1.2fr);
+      gap: 16px;
+    }
+
+    @media (max-width: 720px) {
+      .layout {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .puck-stage {
+      background: radial-gradient(circle at 30% 10%, #2f375b 0, #131625 45%, #05070b 100%);
+      border-radius: 18px;
+      padding: 24px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 0 24px rgba(0, 0, 0, 0.7);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .center-line {
+      position: absolute;
+      left: 50%;
+      top: 0;
+      bottom: 0;
+      width: 2px;
+      background: rgba(255, 255, 255, 0.08);
+      transform: translateX(-50%);
+    }
+
+    .faceoff-circle {
+      position: absolute;
+      width: 44%;
+      aspect-ratio: 1 / 1;
+      border-radius: 50%;
+      border: 2px solid rgba(255, 255, 255, 0.1);
+      box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.6);
+    }
+
+    .puck {
+      position: relative;
+      width: min(260px, 70vw);
+      aspect-ratio: 1 / 1;
+      border-radius: 50%;
+      background: radial-gradient(circle at 30% 20%, #ffffff 0, #f3f3f3 12%, #101010 80%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow:
+        0 0 0 6px rgba(0, 0, 0, 0.9),
+        0 16px 32px rgba(0, 0, 0, 0.9);
+      padding: 16px;
+      text-align: center;
+      color: #111;
+      transition: transform 0.18s ease-out, box-shadow 0.18s ease-out;
+    }
+
+    .puck::before {
+      content: "";
+      position: absolute;
+      inset: 10%;
+      border-radius: 50%;
+      border: 4px solid rgba(0, 0, 0, 0.7);
+      box-shadow: inset 0 0 8px rgba(0, 0, 0, 0.9);
+      pointer-events: none;
+    }
+
+    .puck.glow {
+      transform: translateY(-4px);
+      box-shadow:
+        0 0 0 6px rgba(0, 0, 0, 0.8),
+        0 0 28px rgba(0, 224, 255, 0.7),
+        0 18px 36px rgba(0, 0, 0, 0.9);
+    }
+
+    .puck-inner {
+      position: relative;
+      z-index: 1;
+      width: 100%;
+      height: 100%;
+      border-radius: 50%;
+      padding: 22% 10% 14%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 4px;
+    }
+
+    .shot-family-pill {
+      font-size: 0.78rem;
+      text-transform: uppercase;
+      letter-spacing: 0.18em;
+      padding: 3px 10px;
+      border-radius: 999px;
+      border: 1px solid rgba(0, 0, 0, 0.6);
+      background: rgba(0, 0, 0, 0.1);
+      margin-bottom: 4px;
+      white-space: nowrap;
+    }
+
+    .shot-name {
+      font-size: 1.12rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      line-height: 1.2;
+    }
+
+    .shot-variant {
+      font-size: 0.86rem;
+      opacity: 0.8;
+    }
+
+    .shot-note {
+      font-size: 0.78rem;
+      margin-top: 6px;
+      opacity: 0.9;
+    }
+
+    .controls-panel {
+      background: var(--panel);
+      border-radius: 18px;
+      padding: 16px;
+      box-shadow: 0 0 18px rgba(0, 0, 0, 0.6);
+    }
+
+    .controls-panel h2 {
+      margin: 0 0 4px;
+      font-size: 1.1rem;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+    }
+
+    .controls-panel p {
+      margin: 0 0 12px;
+      font-size: 0.85rem;
+      color: var(--text-muted);
+    }
+
+    .field-row {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 10px;
+    }
+
+    .field-row label {
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      color: var(--text-muted);
+    }
+
+    select {
+      width: 100%;
+      padding: 6px 8px;
+      border-radius: 8px;
+      border: 1px solid #333a4a;
+      background: #080b13;
+      color: var(--text-main);
+      font-size: 0.85rem;
+    }
+
+    button {
+      border-radius: 999px;
+      border: none;
+      padding: 7px 14px;
+      font-size: 0.85rem;
+      cursor: pointer;
+      background: var(--accent);
+      color: #020308;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      box-shadow: 0 4px 12px rgba(0, 224, 255, 0.35);
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    button:active {
+      transform: translateY(1px);
+      box-shadow: 0 2px 8px rgba(0, 224, 255, 0.25);
+    }
+
+    .buttons-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 4px;
+      margin-bottom: 10px;
+    }
+
+    .diagram-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.8rem;
+      color: var(--accent);
+      text-decoration: none;
+      padding: 4px 8px;
+      border-radius: 999px;
+      border: 1px solid rgba(0, 224, 255, 0.3);
+    }
+
+    .diagram-link:hover {
+      background: rgba(0, 224, 255, 0.08);
+    }
+
+    .shot-meta {
+      font-size: 0.78rem;
+      color: var(--text-muted);
+      margin-top: 6px;
+      line-height: 1.4;
+    }
+
+    .shot-meta span {
+      opacity: 0.9;
+    }
+
+    .tag {
+      display: inline-block;
+      padding: 2px 6px;
+      border-radius: 999px;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      font-size: 0.72rem;
+      text-transform: uppercase;
+      letter-spacing: 0.14em;
+      margin-right: 4px;
+      margin-top: 4px;
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <header>
+      <h1>One Puck Shot Trainer</h1>
+      <p>Tap through shots. The puck color tells you the family. The text tells you the story.</p>
+    </header>
+
+    <div class="layout">
+      <!-- Left: Puck -->
+      <section class="puck-stage">
+        <div class="center-line"></div>
+        <div class="faceoff-circle"></div>
+
+        <div id="puck" class="puck">
+          <div id="puckInner" class="puck-inner">
+            <div class="shot-family-pill" id="shotFamilyPill">Faceoff</div>
+            <div class="shot-name" id="shotName">Starting Position</div>
+            <div class="shot-variant" id="shotVariant">Both players ready</div>
+            <div class="shot-note" id="shotNote">Use this to reset and breathe.</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Right: Controls -->
+      <aside class="controls-panel">
+        <h2>Shot Selector</h2>
+        <p>Pick a family and shot, or let the puck decide for you.</p>
+
+        <div class="field-row" style="flex-direction: column;">
+          <label for="familySelect">Shot family</label>
+          <select id="familySelect"></select>
+        </div>
+
+        <div class="field-row" style="flex-direction: column;">
+          <label for="shotSelect">Shot</label>
+          <select id="shotSelect"></select>
+        </div>
+
+        <div class="buttons-row">
+          <button id="applyShotBtn">Load Shot</button>
+          <button id="randomShotBtn">Random Shot</button>
+          <button id="faceoffBtn">Faceoff</button>
+        </div>
+
+        <a id="diagramLink" class="diagram-link" href="#" target="_blank" rel="noopener" style="display:none;">
+          📐 View diagram
+        </a>
+
+        <div class="shot-meta" id="shotMeta"></div>
+
+        <div id="shotTags"></div>
+      </aside>
+    </div>
+  </div>
+
+  <script>
+    // Base colors per family
+    const FAMILY_COLORS = {
+      "Faceoff": "#ffffff",
+      "Basic Point": "#ffd54f",
+      "Cross": "#00e0ff",
+      "Cut": "#ff6666",
+      "Defense Straight": "#c0c0c0",
+      "Right Wall": "#ff9800",
+      "Left Wall": "#4caf50",
+      "Defense Wall": "#9e9e9e",
+      "Double Bank": "#ba68c8",
+      "Triple Bank": "#ef5350",
+      "Turkey Shot": "#ffca28"
+    };
+
+    // Small helper to build a puck gradient from a family color
+    function makePuckGradient(color) {
+      const dark = "#050505";
+      return `radial-gradient(circle at 30% 20%, #ffffff 0, #f3f3f3 14%, ${color} 55%, ${dark} 92%)`;
+    }
+
+    // Shot data - sample entries wired to your links.
+    // You can expand this list with all variants following the same pattern.
+    const SHOTS = [
+      // Faceoff
+      {
+        id: "faceoff",
+        family: "Faceoff",
+        name: "Starting Position",
+        variant: "Both players centered",
+        note: "Puck in the middle. Mallet on the back line. Eyes up.",
+        side: "Neutral",
+        path: "Center",
+        diagram: "https://drive.google.com/file/d/101rYuiHaY1936pwXLpccaCXpTdaao_6c/view?usp=sharing",
+        tags: ["setup", "reset"]
+      },
+
+      // Basic Point
+      {
+        id: "basic-point",
+        family: "Basic Point",
+        name: "One Point",
+        variant: "Straight finish",
+        note: "Clean, simple, straight. The foundation for everything else.",
+        side: "Center",
+        path: "Straight",
+        diagram: "https://drive.google.com/file/d/11QV8jOxI8ye8d2xRoJUevFuwwaIvoPDW/view?usp=sharing",
+        tags: ["fundamentals"]
+      },
+
+      // Cross family - examples
+      {
+        id: "cross-straight-lr",
+        family: "Cross",
+        name: "Cross Straight",
+        variant: "Right hand, left to right",
+        note: "Classic cross. Start left, drive through center, finish on the right corner.",
+        side: "Left to Right",
+        path: "Straight",
+        diagram: "https://drive.google.com/file/d/1VVuxcdgRfGOijf1JLw0bct2fpgKx-2Me/view?usp=sharing",
+        tags: ["offense"]
+      },
+      {
+        id: "cross-straight-rl",
+        family: "Cross",
+        name: "Cross Straight",
+        variant: "Right hand, right to left",
+        note: "Mirror image. Same motion, other side.",
+        side: "Right to Left",
+        path: "Straight",
+        diagram: "https://drive.google.com/file/d/15wXCwccwjqpNTsMGk6wme9pTP5WbxB1i/view?usp=sharing",
+        tags: ["offense"]
+      },
+      {
+        id: "reverse-cross-lr",
+        family: "Cross",
+        name: "Reverse Cross",
+        variant: "Right hand, left to right",
+        note: "Reverse takeoff, same lane. Great changeup when they read your regular cross.",
+        side: "Left to Right",
+        path: "Reverse",
+        diagram: "https://drive.google.com/file/d/1OXEwb6SvwXUrya9u_iOCvwroAvpXsoRr/view?usp=sharing",
+        tags: ["offense", "trick"]
+      },
+      {
+        id: "reverse-cross-rl",
+        family: "Cross",
+        name: "Reverse Cross",
+        variant: "Right hand, right to left",
+        note: "Reverse motion to the opposite side. Sell the straight, send it across.",
+        side: "Right to Left",
+        path: "Reverse",
+        diagram: "https://drive.google.com/file/d/1gFdVAc5LztfvGVD1q6r50q6_SvvoOrmx/view?usp=sharing",
+        tags: ["offense", "trick"]
+      },
+
+      // Cut family - examples
+      {
+        id: "cut-bottom",
+        family: "Cut",
+        name: "Cut Straight Bottom",
+        variant: "Right hand",
+        note: "Drive through the bottom lane. Fast, direct, hard to read if your setup is honest.",
+        side: "Bottom",
+        path: "Straight",
+        diagram: "https://drive.google.com/file/d/1k_eleDHSizUsayPg24Lt5BeEUBEg7TkG/view?usp=sharing",
+        tags: ["offense"]
+      },
+      {
+        id: "cut-top",
+        family: "Cut",
+        name: "Cut Straight Top",
+        variant: "Right hand",
+        note: "Same idea, top lane. Pairs well with bottom and cross to create a three point threat.",
+        side: "Top",
+        path: "Straight",
+        diagram: "https://drive.google.com/file/d/1dZngKVKZlvajxFERmbyI3uUmOnt1c8Hl/view?usp=sharing",
+        tags: ["offense"]
+      },
+
+      // Defense for straight shots
+      {
+        id: "def-straight-basic",
+        family: "Defense Straight",
+        name: "Center Block",
+        variant: "Back and forth defense",
+        note: "Track the line, not the mallet. Glide through the straight lanes instead of chasing.",
+        side: "Center",
+        path: "Straight",
+        diagram: "https://drive.google.com/file/d/1ovS_GRCAyIq4HoV48PcBIH7z2MRpf0CQ/view?usp=sharing",
+        tags: ["defense"]
+      },
+
+      // Right Wall Under
+      {
+        id: "rwu",
+        family: "Right Wall",
+        name: "Right Wall Under",
+        variant: "Right hand",
+        note: "Off the right wall, under the mallet, into the goal. Bread and butter wall shot.",
+        side: "Right",
+        path: "Under",
+        diagram: "https://drive.google.com/file/d/1sfwJQesOrc2vRmslLKYMQOI_wy0PXl8w/view?usp=sharing",
+        tags: ["offense", "wall"]
+      },
+
+      // Right Wall Over
+      {
+        id: "rwo",
+        family: "Right Wall",
+        name: "Right Wall Over",
+        variant: "Right hand",
+        note: "Same lane start as RWU, but this one lifts over the expected block.",
+        side: "Right",
+        path: "Over",
+        diagram: "https://drive.google.com/file/d/1CvMtLlMLdkPAj_rTsefGRLEH09Lo_run/view?usp=sharing",
+        tags: ["offense", "wall"]
+      },
+
+      // Left Wall Under
+      {
+        id: "lwu",
+        family: "Left Wall",
+        name: "Left Wall Under",
+        variant: "Right hand",
+        note: "Mirror of RWU on the left side. Great for players who overplay your right wall.",
+        side: "Left",
+        path: "Under",
+        diagram: "https://drive.google.com/file/d/1ou-kd1SJsud1zQ3M8XNwegsbIGLhWeq7/view?usp=sharing",
+        tags: ["offense", "wall"]
+      },
+
+      // Left Wall Over
+      {
+        id: "lwo",
+        family: "Left Wall",
+        name: "Left Wall Over",
+        variant: "Right hand",
+        note: "Same start as LWU, but float it over the block for a nasty surprise.",
+        side: "Left",
+        path: "Over",
+        diagram: "https://drive.google.com/file/d/1wB6wfo1eBB8OtxaNLvV6pjgCCFf27Zbf/view?usp=sharing",
+        tags: ["offense", "wall"]
+      },
+
+      // Defense for wall shots
+      {
+        id: "def-wall-triangle",
+        family: "Defense Wall",
+        name: "Triangle Defense",
+        variant: "Wall shot coverage",
+        note: "Rotate through three spots that shut down wall under, over, and basic crosses.",
+        side: "Both walls",
+        path: "Triangle pattern",
+        diagram: "https://drive.google.com/file/d/1UjAoXRGgWNYaUgKx-xRWDtLY3jf9baWS/view?usp=sharing",
+        tags: ["defense", "wall"]
+      },
+
+      // Double Bank
+      {
+        id: "double-bank-rwlw",
+        family: "Double Bank",
+        name: "Right to Left Double Bank",
+        variant: "RWLW",
+        note: "Right wall, left wall, then home. Fancy, but powerful when sold off a normal wall game.",
+        side: "Right and Left walls",
+        path: "RWLW",
+        diagram: "https://drive.google.com/file/d/1pgYzvSPPfDLV59HEuqxFpRBvCCYmOVa_/view?usp=sharing",
+        tags: ["trick", "bank"]
+      },
+      {
+        id: "double-bank-lwrw",
+        family: "Double Bank",
+        name: "Left to Right Double Bank",
+        variant: "LWRW",
+        note: "Left wall first, then right. Use it as a once a game surprise.",
+        side: "Left and Right walls",
+        path: "LWRW",
+        diagram: "https://drive.google.com/file/d/1ia-qSLVZUrnjMJCWnKlwV2Uq7xgU9LSn/view?usp=sharing",
+        tags: ["trick", "bank"]
+      },
+
+      // Triple Bank
+      {
+        id: "triple-bank-rw",
+        family: "Triple Bank",
+        name: "Triple Bank Right",
+        variant: "Right heavy pattern",
+        note: "High flair, high risk. Know the lanes cold before you whip this out.",
+        side: "Right",
+        path: "Triple bank",
+        diagram: "https://drive.google.com/file/d/1LYHfOdjj8Gflbhk0j6xiYjySQXK3cjWH/view?usp=sharing",
+        tags: ["trick", "bank"]
+      },
+      {
+        id: "triple-bank-lw",
+        family: "Triple Bank",
+        name: "Triple Bank Left",
+        variant: "Left heavy pattern",
+        note: "Same energy, mirrored path. Practice both so you are not a one side wonder.",
+        side: "Left",
+        path: "Triple bank",
+        diagram: "https://drive.google.com/file/d/1GITS8J1FaHZwnr5jskLvKGJWUlY7jg0V/view?usp=sharing",
+        tags: ["trick", "bank"]
+      },
+
+      // Turkey Shot
+      {
+        id: "turkey-rw",
+        family: "Turkey Shot",
+        name: "Turkey Shot Right",
+        variant: "Right wall pattern",
+        note: "Think of it as a wall shot that gobbles up bad defense three times in a row.",
+        side: "Right",
+        path: "Turkey pattern",
+        diagram: "https://drive.google.com/file/d/1lK-juLlN1zf8cofS6dsPs-DqkeNXlh7R/view?usp=sharing",
+        tags: ["offense", "special"]
+      },
+      {
+        id: "turkey-lw",
+        family: "Turkey Shot",
+        name: "Turkey Shot Left",
+        variant: "Left wall pattern",
+        note: "Mirror on the left. Extra gravy if you pair it with clean straight threats.",
+        side: "Left",
+        path: "Turkey pattern",
+        diagram: "https://drive.google.com/file/d/1C9cfOYam-SNtYASbYIlQvXrnr4hXfI6x/view?usp=sharing",
+        tags: ["offense", "special"]
+      }
+    ];
+
+    // Build family list from shots
+    const families = Array.from(
+      new Set(SHOTS.map(s => s.family))
+    );
+
+    const familySelect = document.getElementById("familySelect");
+    const shotSelect = document.getElementById("shotSelect");
+    const puck = document.getElementById("puck");
+    const puckInner = document.getElementById("puckInner");
+    const shotFamilyPill = document.getElementById("shotFamilyPill");
+    const shotNameEl = document.getElementById("shotName");
+    const shotVariantEl = document.getElementById("shotVariant");
+    const shotNoteEl = document.getElementById("shotNote");
+    const shotMetaEl = document.getElementById("shotMeta");
+    const shotTagsEl = document.getElementById("shotTags");
+    const diagramLink = document.getElementById("diagramLink");
+    const applyShotBtn = document.getElementById("applyShotBtn");
+    const randomShotBtn = document.getElementById("randomShotBtn");
+    const faceoffBtn = document.getElementById("faceoffBtn");
+
+    function populateFamilies() {
+      familySelect.innerHTML = "";
+      families.forEach(fam => {
+        const opt = document.createElement("option");
+        opt.value = fam;
+        opt.textContent = fam;
+        familySelect.appendChild(opt);
+      });
+    }
+
+    function populateShotsForFamily(family) {
+      shotSelect.innerHTML = "";
+      const shotsForFamily = SHOTS.filter(s => s.family === family);
+      shotsForFamily.forEach(s => {
+        const opt = document.createElement("option");
+        opt.value = s.id;
+        opt.textContent = s.name + (s.variant ? " - " + s.variant : "");
+        shotSelect.appendChild(opt);
+      });
+    }
+
+    function getShotById(id) {
+      return SHOTS.find(s => s.id === id) || SHOTS[0];
+    }
+
+    function applyShot(shot) {
+      const familyColor = FAMILY_COLORS[shot.family] || "#dddddd";
+      puck.style.background = makePuckGradient(familyColor);
+
+      shotFamilyPill.textContent = shot.family;
+      shotNameEl.textContent = shot.name;
+      shotVariantEl.textContent = shot.variant || "";
+      shotNoteEl.textContent = shot.note || "";
+
+      const metaBits = [];
+      if (shot.side) metaBits.push(`<span>Side: <strong>${shot.side}</strong></span>`);
+      if (shot.path) metaBits.push(`<span>Path: <strong>${shot.path}</strong></span>`);
+      shotMetaEl.innerHTML = metaBits.join(" • ");
+
+      shotTagsEl.innerHTML = "";
+      if (shot.tags && shot.tags.length) {
+        shot.tags.forEach(tag => {
+          const span = document.createElement("span");
+          span.className = "tag";
+          span.textContent = tag;
+          shotTagsEl.appendChild(span);
+        });
+      }
+
+      if (shot.diagram) {
+        diagramLink.href = shot.diagram;
+        diagramLink.style.display = "inline-flex";
+      } else {
+        diagramLink.style.display = "none";
+      }
+
+      puck.classList.remove("glow");
+      void puck.offsetWidth; // force reflow
+      puck.classList.add("glow");
+    }
+
+    function init() {
+      populateFamilies();
+      familySelect.value = "Faceoff";
+      populateShotsForFamily("Faceoff");
+      shotSelect.value = "faceoff";
+      applyShot(getShotById("faceoff"));
+    }
+
+    familySelect.addEventListener("change", () => {
+      populateShotsForFamily(familySelect.value);
+      const firstId = shotSelect.value;
+      applyShot(getShotById(firstId));
+    });
+
+    shotSelect.addEventListener("change", () => {
+      applyShot(getShotById(shotSelect.value));
+    });
+
+    applyShotBtn.addEventListener("click", () => {
+      applyShot(getShotById(shotSelect.value));
+    });
+
+    randomShotBtn.addEventListener("click", () => {
+      // All shots except faceoff if you want it to feel like game mode
+      const pool = SHOTS.filter(s => s.id !== "faceoff");
+      const random = pool[Math.floor(Math.random() * pool.length)];
+      familySelect.value = random.family;
+      populateShotsForFamily(random.family);
+      shotSelect.value = random.id;
+      applyShot(random);
+    });
+
+    faceoffBtn.addEventListener("click", () => {
+      const faceoff = getShotById("faceoff");
+      familySelect.value = faceoff.family;
+      populateShotsForFamily(faceoff.family);
+      shotSelect.value = faceoff.id;
+      applyShot(faceoff);
+    });
+
+    // Kick it off
+    init();
+  </script>
+</body>
+</html>

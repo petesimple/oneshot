@@ -1,0 +1,53 @@
+<svg width="512" height="512" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background -->
+  <defs>
+    <radialGradient id="bgGrad" cx="30%" cy="15%" r="80%">
+      <stop offset="0%" stop-color="#323a5e"/>
+      <stop offset="45%" stop-color="#151827"/>
+      <stop offset="100%" stop-color="#05070b"/>
+    </radialGradient>
+    <radialGradient id="puckGrad" cx="30%" cy="20%" r="80%">
+      <stop offset="0%" stop-color="#ffffff"/>
+      <stop offset="13%" stop-color="#f3f3f3"/>
+      <stop offset="55%" stop-color="#00e0ff"/>
+      <stop offset="95%" stop-color="#050505"/>
+    </radialGradient>
+  </defs>
+
+  <rect x="0" y="0" width="512" height="512" fill="url(#bgGrad)" />
+
+  <!-- Center line -->
+  <rect x="252" y="40" width="8" height="432" fill="rgba(255,255,255,0.08)"/>
+
+  <!-- Faceoff circle -->
+  <circle cx="256" cy="256" r="120" fill="none" stroke="rgba(255,255,255,0.18)" stroke-width="6"/>
+
+  <!-- Glow behind puck -->
+  <circle cx="256" cy="256" r="120" fill="#00e0ff" opacity="0.18" />
+
+  <!-- Puck -->
+  <g transform="translate(256 256)">
+    <circle r="110" fill="url(#puckGrad)" />
+    <circle r="80" fill="none" stroke="rgba(0,0,0,0.7)" stroke-width="10" />
+    <circle r="82" fill="none" stroke="rgba(0,0,0,0.5)" stroke-width="4" />
+  </g>
+
+  <!-- Text: ONE SHOT -->
+  <text x="256" y="246" text-anchor="middle" fill="#05070b"
+        font-family="system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif"
+        font-weight="800" font-size="44" letter-spacing="10">
+    ONE
+  </text>
+  <text x="256" y="290" text-anchor="middle" fill="#05070b"
+        font-family="system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif"
+        font-weight="800" font-size="40" letter-spacing="8">
+    SHOT
+  </text>
+
+  <!-- Subtitle -->
+  <text x="256" y="340" text-anchor="middle" fill="#0b101a"
+        font-family="system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif"
+        font-weight="500" font-size="18" letter-spacing="4">
+    PUCK TRAINER
+  </text>
+</svg>

@@ -4,6 +4,10 @@
   <meta charset="UTF-8" />
   <title>One Puck Shot Trainer</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="icon" href="icons/oneshot-192.png" />
+<link rel="apple-touch-icon" href="icons/oneshot-192.png" />
+<link rel="manifest" href="manifest.json" />
+<meta name="theme-color" content="#05070b" />
   <style>
     :root {
       --bg: #05070b;
@@ -739,6 +743,15 @@
 
     // Kick it off
     init();
-  </script>
+
+  if ("serviceWorker" in navigator) {
+    window.addEventListener("load", function () {
+      navigator.serviceWorker.register("service-worker.js")
+        .catch(function (err) {
+          console.log("Service worker registration failed", err);
+        });
+    });
+  }
+</script>
 </body>
 </html>

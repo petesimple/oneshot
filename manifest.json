@@ -1,0 +1,21 @@
+{
+  "name": "OneShot Puck Trainer",
+  "short_name": "OneShot",
+  "description": "One puck air hockey shot trainer. The puck changes color and text to teach families, variants, and paths.",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#05070b",
+  "theme_color": "#05070b",
+  "icons": [
+    {
+      "src": "icons/oneshot-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "icons/oneshot-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}

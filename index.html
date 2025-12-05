@@ -5,9 +5,9 @@
   <title>One Puck Shot Trainer</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <link rel="icon" href="icons/oneshot-192.png" />
-  <link rel="apple-touch-icon" href="icons/oneshot-192.png" />
-  <link rel="manifest" href="manifest.json" />
-  <meta name="theme-color" content="#05070b" />
+<link rel="apple-touch-icon" href="icons/oneshot-192.png" />
+<link rel="manifest" href="manifest.json" />
+<meta name="theme-color" content="#05070b" />
   <style>
     :root {
       --bg: #05070b;
@@ -54,12 +54,6 @@
     header p {
       margin: 4px 0 0;
       font-size: 0.9rem;
-      color: var(--text-muted);
-    }
-
-    .hint {
-      margin-top: 4px;
-      font-size: 0.8rem;
       color: var(--text-muted);
     }
 
@@ -122,7 +116,6 @@
       text-align: center;
       color: #111;
       transition: transform 0.18s ease-out, box-shadow 0.18s ease-out;
-      cursor: pointer;
     }
 
     .puck::before {
@@ -143,50 +136,18 @@
         0 18px 36px rgba(0, 0, 0, 0.9);
     }
 
-    .puck-inner,
-    .puck-image-view {
+    .puck-inner {
       position: relative;
       z-index: 1;
       width: 100%;
       height: 100%;
       border-radius: 50%;
-    }
-
-    .puck-inner {
       padding: 22% 10% 14%;
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
       gap: 4px;
-    }
-
-    .puck-image-view {
-      padding: 10%;
-      display: none;
-      align-items: center;
-      justify-content: center;
-    }
-
-    .puck-image-view img {
-      max-width: 100%;
-      max-height: 100%;
-      border-radius: 14px;
-      box-shadow: 0 0 10px rgba(0, 0, 0, 0.7);
-      background: #000;
-    }
-
-    .puck[data-mode="text"] .puck-inner {
-      display: flex;
-    }
-    .puck[data-mode="text"] .puck-image-view {
-      display: none;
-    }
-    .puck[data-mode="diagram"] .puck-inner {
-      display: none;
-    }
-    .puck[data-mode="diagram"] .puck-image-view {
-      display: flex;
     }
 
     .shot-family-pill {
@@ -292,6 +253,22 @@
       margin-bottom: 10px;
     }
 
+    .diagram-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.8rem;
+      color: var(--accent);
+      text-decoration: none;
+      padding: 4px 8px;
+      border-radius: 999px;
+      border: 1px solid rgba(0, 224, 255, 0.3);
+    }
+
+    .diagram-link:hover {
+      background: rgba(0, 224, 255, 0.08);
+    }
+
     .shot-meta {
       font-size: 0.78rem;
       color: var(--text-muted);
@@ -321,7 +298,6 @@
     <header>
       <h1>One Puck Shot Trainer</h1>
       <p>Tap through shots. The puck color tells you the family. The text tells you the story.</p>
-      <div class="hint">Tap or click the puck to toggle between explanation and animation.</div>
     </header>
 
     <div class="layout">
@@ -330,15 +306,12 @@
         <div class="center-line"></div>
         <div class="faceoff-circle"></div>
 
-        <div id="puck" class="puck" data-mode="text">
+        <div id="puck" class="puck">
           <div id="puckInner" class="puck-inner">
             <div class="shot-family-pill" id="shotFamilyPill">Faceoff</div>
             <div class="shot-name" id="shotName">Starting Position</div>
             <div class="shot-variant" id="shotVariant">Both players ready</div>
             <div class="shot-note" id="shotNote">Use this to reset and breathe.</div>
-          </div>
-          <div class="puck-image-view">
-            <img id="shotDiagramImg" alt="Shot diagram" />
           </div>
         </div>
       </section>
@@ -363,6 +336,10 @@
           <button id="randomShotBtn">Random Shot</button>
           <button id="faceoffBtn">Faceoff</button>
         </div>
+
+        <a id="diagramLink" class="diagram-link" href="#" target="_blank" rel="noopener" style="display:none;">
+          📐 View diagram
+        </a>
 
         <div class="shot-meta" id="shotMeta"></div>
 
@@ -393,17 +370,8 @@
       return `radial-gradient(circle at 30% 20%, #ffffff 0, #f3f3f3 14%, ${color} 55%, ${dark} 92%)`;
     }
 
-    // Convert a Google Drive "file/d/<id>/view" URL into an embeddable image URL
-    function driveDiagramToImage(url) {
-      if (!url) return "";
-      const match = url.match(/\/d\/([^/]+)\//);
-      if (match && match[1]) {
-        return `https://drive.google.com/uc?export=view&id=${match[1]}`;
-      }
-      return url;
-    }
-
-    // Shot data
+    // Shot data - sample entries wired to your links.
+    // You can expand this list with all variants following the same pattern.
     const SHOTS = [
       // Faceoff
       {
@@ -431,7 +399,7 @@
         tags: ["fundamentals"]
       },
 
-      // Cross family
+      // Cross family - examples
       {
         id: "cross-straight-lr",
         family: "Cross",
@@ -477,7 +445,7 @@
         tags: ["offense", "trick"]
       },
 
-      // Cut family
+      // Cut family - examples
       {
         id: "cut-bottom",
         family: "Cut",
@@ -653,18 +621,21 @@
     ];
 
     // Build family list from shots
-    const families = Array.from(new Set(SHOTS.map(s => s.family)));
+    const families = Array.from(
+      new Set(SHOTS.map(s => s.family))
+    );
 
     const familySelect = document.getElementById("familySelect");
     const shotSelect = document.getElementById("shotSelect");
     const puck = document.getElementById("puck");
+    const puckInner = document.getElementById("puckInner");
     const shotFamilyPill = document.getElementById("shotFamilyPill");
     const shotNameEl = document.getElementById("shotName");
     const shotVariantEl = document.getElementById("shotVariant");
     const shotNoteEl = document.getElementById("shotNote");
     const shotMetaEl = document.getElementById("shotMeta");
     const shotTagsEl = document.getElementById("shotTags");
-    const shotDiagramImg = document.getElementById("shotDiagramImg");
+    const diagramLink = document.getElementById("diagramLink");
     const applyShotBtn = document.getElementById("applyShotBtn");
     const randomShotBtn = document.getElementById("randomShotBtn");
     const faceoffBtn = document.getElementById("faceoffBtn");
@@ -698,9 +669,6 @@
       const familyColor = FAMILY_COLORS[shot.family] || "#dddddd";
       puck.style.background = makePuckGradient(familyColor);
 
-      // always start in text mode for a new shot
-      puck.dataset.mode = "text";
-
       shotFamilyPill.textContent = shot.family;
       shotNameEl.textContent = shot.name;
       shotVariantEl.textContent = shot.variant || "";
@@ -721,21 +689,15 @@
         });
       }
 
-      const imgSrc = driveDiagramToImage(shot.diagram);
-      if (imgSrc) {
-        shotDiagramImg.src = imgSrc;
-        shotDiagramImg.alt = shot.name + " diagram";
-        shotDiagramImg.style.display = "block";
+      if (shot.diagram) {
+        diagramLink.href = shot.diagram;
+        diagramLink.style.display = "inline-flex";
       } else {
-        shotDiagramImg.removeAttribute("src");
-        shotDiagramImg.style.display = "none";
-        if (puck.dataset.mode === "diagram") {
-          puck.dataset.mode = "text";
-        }
+        diagramLink.style.display = "none";
       }
 
       puck.classList.remove("glow");
-      void puck.offsetWidth;
+      void puck.offsetWidth; // force reflow
       puck.classList.add("glow");
     }
 
@@ -762,6 +724,7 @@
     });
 
     randomShotBtn.addEventListener("click", () => {
+      // All shots except faceoff if you want it to feel like game mode
       const pool = SHOTS.filter(s => s.id !== "faceoff");
       const random = pool[Math.floor(Math.random() * pool.length)];
       familySelect.value = random.family;
@@ -778,29 +741,17 @@
       applyShot(faceoff);
     });
 
-    // Toggle between explanation and diagram when clicking the puck
-    puck.addEventListener("click", () => {
-      const shot = getShotById(shotSelect.value);
-      if (!shot.diagram) return;
-      puck.dataset.mode = puck.dataset.mode === "diagram" ? "text" : "diagram";
-    });
-
     // Kick it off
     init();
 
-    // PWA registration
-    if ("serviceWorker" in navigator) {
-      window.addEventListener("load", function () {
-        navigator.serviceWorker
-          .register("./service-worker.js", { scope: "./" })
-          .then(function (reg) {
-            console.log("Service worker registered with scope:", reg.scope);
-          })
-          .catch(function (err) {
-            console.log("Service worker registration failed", err);
-          });
-      });
-    }
-  </script>
+  if ("serviceWorker" in navigator) {
+    window.addEventListener("load", function () {
+      navigator.serviceWorker.register("service-worker.js")
+        .catch(function (err) {
+          console.log("Service worker registration failed", err);
+        });
+    });
+  }
+</script>
 </body>
 </html>

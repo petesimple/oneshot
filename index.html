@@ -427,6 +427,37 @@
       background: #071018;
     }
 
+    #whiteboardObjects {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 2;
+      pointer-events: none;
+    }
+
+    .whiteboard-object {
+      position: absolute;
+      width: 58px;
+      height: 58px;
+      object-fit: contain;
+      transform: translate(-50%, -50%);
+      cursor: grab;
+      touch-action: none;
+      user-select: none;
+      filter: drop-shadow(0 4px 8px rgba(0,0,0,0.65));
+    }
+
+    .whiteboard-object.selected {
+      outline: 2px solid var(--accent);
+      outline-offset: 4px;
+      border-radius: 999px;
+    }
+
+    .whiteboard-object.dragging {
+      cursor: grabbing;
+    }
+
     #whiteboardCanvas {
       position: absolute;
       inset: 0;
@@ -435,6 +466,15 @@
       touch-action: none;
       cursor: crosshair;
       z-index: 3;
+    }
+
+    #whiteboardCanvas.object-mode {
+      cursor: copy;
+    }
+
+    #whiteboardCanvas.move-mode {
+      pointer-events: none;
+      cursor: default;
     }
 
     .modal-hint {
@@ -552,6 +592,10 @@
       <div id="whiteboardTitle" class="modal-title">Whiteboard</div>
       <button id="penToolBtn" class="modal-tool active" type="button">Pen</button>
       <button id="eraserToolBtn" class="modal-tool" type="button">Erase</button>
+      <button id="malletToolBtn" class="modal-tool" type="button">Mallet</button>
+      <button id="redPuckToolBtn" class="modal-tool" type="button">Red Puck</button>
+      <button id="yellowPuckToolBtn" class="modal-tool" type="button">Yellow Puck</button>
+      <button id="selectToolBtn" class="modal-tool" type="button">Move</button>
       <input id="whiteboardColor" class="whiteboard-color" type="color" value="#00e0ff" aria-label="Pen color" />
       <input id="whiteboardSize" class="whiteboard-size" type="range" min="2" max="30" value="5" aria-label="Pen size" />
       <button id="saveWhiteboardBtn" class="modal-tool save" type="button">Save PNG</button>
@@ -560,9 +604,10 @@
     </div>
     <div class="modal-stage">
       <img id="whiteboardImage" class="base-image" alt="Whiteboard background" />
+      <div id="whiteboardObjects"></div>
       <canvas id="whiteboardCanvas"></canvas>
       <div id="whiteboardMissing" class="missing-image" style="display:none;"></div>
-      <div class="modal-hint">Draw directly on the selected graphic. Save PNG exports graphic plus marks.</div>
+      <div class="modal-hint">Use puck and mallet tools to place objects. Move mode drags them around.</div>
     </div>
   </div>
 
@@ -661,6 +706,12 @@
       "Turkey Shot": "#ffca28"
     };
 
+    const STAMP_TOOLS = {
+      mallet: "graphics/Mallet.png",
+      redPuck: "graphics/Red-Puck.png",
+      yellowPuck: "graphics/Yellow-Puck.png"
+    };
+
     const graphicSelect = document.getElementById("graphicSelect");
     const graphicTypeChip = document.getElementById("graphicTypeChip");
     const puck = document.getElementById("puck");
@@ -686,10 +737,15 @@
     const whiteboardModal = document.getElementById("whiteboardModal");
     const whiteboardTitle = document.getElementById("whiteboardTitle");
     const whiteboardImage = document.getElementById("whiteboardImage");
+    const whiteboardObjects = document.getElementById("whiteboardObjects");
     const whiteboardCanvas = document.getElementById("whiteboardCanvas");
     const whiteboardMissing = document.getElementById("whiteboardMissing");
     const penToolBtn = document.getElementById("penToolBtn");
     const eraserToolBtn = document.getElementById("eraserToolBtn");
+    const malletToolBtn = document.getElementById("malletToolBtn");
+    const redPuckToolBtn = document.getElementById("redPuckToolBtn");
+    const yellowPuckToolBtn = document.getElementById("yellowPuckToolBtn");
+    const selectToolBtn = document.getElementById("selectToolBtn");
     const whiteboardColor = document.getElementById("whiteboardColor");
     const whiteboardSize = document.getElementById("whiteboardSize");
     const saveWhiteboardBtn = document.getElementById("saveWhiteboardBtn");
@@ -701,6 +757,10 @@
     let currentExists = false;
     let drawing = false;
     let whiteboardTool = "pen";
+    let activeObject = null;
+    let draggedObject = null;
+    let dragOffsetX = 0;
+    let dragOffsetY = 0;
     let lastX = 0;
     let lastY = 0;
 
@@ -727,7 +787,8 @@
 
       const motionGroup = document.createElement("optgroup");
       motionGroup.label = "⭐ Motion Shots";
-      GRAPHICS.filter(g => g.type === "motion").forEach((graphic, index) => {
+      GRAPHICS.filter(g => g.type === "motion").forEach((graphic) => {
+        const index = GRAPHICS.indexOf(graphic);
         const opt = document.createElement("option");
         opt.value = String(index);
         opt.textContent = graphic.label;
@@ -847,6 +908,9 @@
       const rect = whiteboardCanvas.getBoundingClientRect();
       const ctx = whiteboardCanvas.getContext("2d");
       ctx.clearRect(0, 0, rect.width, rect.height);
+      whiteboardObjects.innerHTML = "";
+      activeObject = null;
+      draggedObject = null;
     }
 
     function getCanvasPoint(e) {
@@ -860,8 +924,17 @@
 
     function startDrawing(e) {
       e.preventDefault();
-      drawing = true;
       const point = getCanvasPoint(e);
+
+      if (STAMP_TOOLS[whiteboardTool]) {
+        addWhiteboardObject(whiteboardTool, point.x, point.y);
+        setWhiteboardTool("move");
+        return;
+      }
+
+      if (whiteboardTool === "move") return;
+
+      drawing = true;
       lastX = point.x;
       lastY = point.y;
     }
@@ -900,8 +973,87 @@
 
     function setWhiteboardTool(tool) {
       whiteboardTool = tool;
+
       penToolBtn.classList.toggle("active", tool === "pen");
       eraserToolBtn.classList.toggle("active", tool === "eraser");
+      malletToolBtn.classList.toggle("active", tool === "mallet");
+      redPuckToolBtn.classList.toggle("active", tool === "redPuck");
+      yellowPuckToolBtn.classList.toggle("active", tool === "yellowPuck");
+      selectToolBtn.classList.toggle("active", tool === "move");
+
+      whiteboardCanvas.classList.toggle("object-mode", Boolean(STAMP_TOOLS[tool]));
+      whiteboardCanvas.classList.toggle("move-mode", tool === "move");
+      whiteboardObjects.style.pointerEvents = tool === "move" ? "auto" : "none";
+    }
+
+    function addWhiteboardObject(tool, x, y) {
+      const src = STAMP_TOOLS[tool];
+      if (!src) return;
+
+      const img = document.createElement("img");
+      img.className = "whiteboard-object selected";
+      img.src = src;
+      img.alt = tool;
+      img.dataset.tool = tool;
+      img.style.left = `${x}px`;
+      img.style.top = `${y}px`;
+
+      if (tool === "mallet") {
+        img.style.width = "74px";
+        img.style.height = "74px";
+      } else {
+        img.style.width = "46px";
+        img.style.height = "46px";
+      }
+
+      whiteboardObjects.querySelectorAll(".whiteboard-object").forEach(obj => obj.classList.remove("selected"));
+      activeObject = img;
+      whiteboardObjects.appendChild(img);
+    }
+
+    function getObjectPoint(e) {
+      const rect = whiteboardObjects.getBoundingClientRect();
+      const point = e.touches ? e.touches[0] : e;
+      return {
+        x: point.clientX - rect.left,
+        y: point.clientY - rect.top
+      };
+    }
+
+    function startObjectDrag(e) {
+      const target = e.target.closest(".whiteboard-object");
+      if (!target || whiteboardTool !== "move") return;
+
+      e.preventDefault();
+      draggedObject = target;
+      activeObject = target;
+
+      whiteboardObjects.querySelectorAll(".whiteboard-object").forEach(obj => obj.classList.remove("selected"));
+      draggedObject.classList.add("selected", "dragging");
+
+      const point = getObjectPoint(e);
+      dragOffsetX = point.x - parseFloat(draggedObject.style.left || 0);
+      dragOffsetY = point.y - parseFloat(draggedObject.style.top || 0);
+    }
+
+    function dragObject(e) {
+      if (!draggedObject) return;
+
+      e.preventDefault();
+      const point = getObjectPoint(e);
+      draggedObject.style.left = `${point.x - dragOffsetX}px`;
+      draggedObject.style.top = `${point.y - dragOffsetY}px`;
+    }
+
+    function stopObjectDrag() {
+      if (draggedObject) draggedObject.classList.remove("dragging");
+      draggedObject = null;
+    }
+
+    function deleteActiveObject() {
+      if (!activeObject) return;
+      activeObject.remove();
+      activeObject = null;
     }
 
     async function openWhiteboard() {
@@ -910,6 +1062,7 @@
       whiteboardModal.classList.add("active");
       whiteboardModal.setAttribute("aria-hidden", "false");
       document.body.style.overflow = "hidden";
+      setWhiteboardTool("pen");
 
       if (currentExists && currentSrc) {
         whiteboardMissing.style.display = "none";
@@ -932,10 +1085,12 @@
       whiteboardModal.setAttribute("aria-hidden", "true");
       document.body.style.overflow = "";
       drawing = false;
+      draggedObject = null;
     }
 
     function drawImageContain(ctx, img, x, y, w, h) {
       if (!img.naturalWidth || !img.naturalHeight) return;
+
       const imgRatio = img.naturalWidth / img.naturalHeight;
       const boxRatio = w / h;
       let drawW = w;
@@ -970,9 +1125,24 @@
         drawImageContain(exportCtx, whiteboardImage, 0, 0, width, height);
       }
 
+      whiteboardObjects.querySelectorAll(".whiteboard-object").forEach(obj => {
+        if (!obj.complete) return;
+
+        const objW = obj.offsetWidth;
+        const objH = obj.offsetHeight;
+        const objX = parseFloat(obj.style.left || 0) - objW / 2;
+        const objY = parseFloat(obj.style.top || 0) - objH / 2;
+
+        exportCtx.drawImage(obj, objX, objY, objW, objH);
+      });
+
       exportCtx.drawImage(whiteboardCanvas, 0, 0, width, height);
 
-      const safeName = (currentGraphic?.name || "whiteboard").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
+      const safeName = (currentGraphic?.name || "whiteboard")
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, "-")
+        .replace(/^-+|-+$/g, "");
+
       const link = document.createElement("a");
       link.download = `${safeName}-whiteboard.png`;
       link.href = exportCanvas.toDataURL("image/png");
@@ -997,6 +1167,7 @@
       const motionIndexes = GRAPHICS
         .map((g, index) => ({ g, index }))
         .filter(item => item.g.type === "motion");
+
       const pick = motionIndexes[Math.floor(Math.random() * motionIndexes.length)];
       graphicSelect.value = String(pick.index);
       applyGraphic(pick.g);
@@ -1019,6 +1190,10 @@
 
     penToolBtn.addEventListener("click", () => setWhiteboardTool("pen"));
     eraserToolBtn.addEventListener("click", () => setWhiteboardTool("eraser"));
+    malletToolBtn.addEventListener("click", () => setWhiteboardTool("mallet"));
+    redPuckToolBtn.addEventListener("click", () => setWhiteboardTool("redPuck"));
+    yellowPuckToolBtn.addEventListener("click", () => setWhiteboardTool("yellowPuck"));
+    selectToolBtn.addEventListener("click", () => setWhiteboardTool("move"));
 
     whiteboardCanvas.addEventListener("mousedown", startDrawing);
     whiteboardCanvas.addEventListener("mousemove", draw);
@@ -1029,12 +1204,27 @@
     window.addEventListener("touchend", stopDrawing);
     window.addEventListener("touchcancel", stopDrawing);
 
+    whiteboardObjects.addEventListener("mousedown", startObjectDrag);
+    window.addEventListener("mousemove", dragObject);
+    window.addEventListener("mouseup", stopObjectDrag);
+
+    whiteboardObjects.addEventListener("touchstart", startObjectDrag, { passive: false });
+    window.addEventListener("touchmove", dragObject, { passive: false });
+    window.addEventListener("touchend", stopObjectDrag);
+    window.addEventListener("touchcancel", stopObjectDrag);
+
     window.addEventListener("resize", () => {
       if (whiteboardModal.classList.contains("active")) resizeWhiteboardCanvas();
     });
 
     window.addEventListener("keydown", (e) => {
+      if ((e.key === "Backspace" || e.key === "Delete") && whiteboardModal.classList.contains("active")) {
+        deleteActiveObject();
+        return;
+      }
+
       if (e.key !== "Escape") return;
+
       if (whiteboardModal.classList.contains("active")) closeWhiteboard();
       if (viewerModal.classList.contains("active")) closeViewer();
     });

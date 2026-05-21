@@ -234,6 +234,15 @@
       font-size: 0.85rem;
     }
 
+    option.motion-option {
+      color: #00e0ff;
+      font-weight: 700;
+    }
+
+    option.table-option {
+      color: #f5f5f5;
+    }
+
     button {
       border-radius: 999px;
       border: none;
@@ -272,6 +281,20 @@
       color: var(--accent);
       border: 1px solid rgba(0, 224, 255, 0.38);
       box-shadow: none;
+    }
+
+    .graphic-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      margin: 4px 0 8px;
+      padding: 5px 9px;
+      border-radius: 999px;
+      border: 1px solid rgba(0, 224, 255, 0.35);
+      color: var(--accent);
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
     }
 
     .shot-meta {
@@ -465,7 +488,7 @@
   <div class="app">
     <header>
       <h1>One Puck Shot Trainer</h1>
-      <p>Shot diagrams for learning. Table whiteboards for coaching. Clean and separate.</p>
+      <p>Pick any local graphic, view it, or open it as a whiteboard background.</p>
     </header>
 
     <div class="layout">
@@ -475,42 +498,33 @@
 
         <div id="puck" class="puck">
           <div class="puck-inner">
-            <div class="shot-family-pill" id="shotFamilyPill">Faceoff</div>
-            <div class="shot-name" id="shotName">Starting Position</div>
-            <div class="shot-variant" id="shotVariant">Both players ready</div>
-            <div class="shot-note" id="shotNote">Use this to reset and breathe.</div>
+            <div class="shot-family-pill" id="shotFamilyPill">Graphic</div>
+            <div class="shot-name" id="shotName">One Shot Whiteboard</div>
+            <div class="shot-variant" id="shotVariant">Choose a graphic</div>
+            <div class="shot-note" id="shotNote">Motion shots are highlighted at the top of the list.</div>
           </div>
         </div>
       </section>
 
       <aside class="controls-panel">
-        <h2>Shot Selector</h2>
-        <p>View a shot diagram, or open a blank table whiteboard.</p>
+        <h2>Graphic Selector</h2>
+        <p>One list. Motion shots first. Tables after that.</p>
 
         <div class="field-row">
-          <label for="familySelect">Shot family</label>
-          <select id="familySelect"></select>
+          <label for="graphicSelect">Graphic / whiteboard background</label>
+          <select id="graphicSelect"></select>
         </div>
 
-        <div class="field-row">
-          <label for="shotSelect">Shot</label>
-          <select id="shotSelect"></select>
-        </div>
-
-        <div class="field-row">
-          <label for="tableSelect">Whiteboard table graphic</label>
-          <select id="tableSelect"></select>
-        </div>
+        <div id="graphicTypeChip" class="graphic-chip">Motion Shot</div>
 
         <div class="buttons-row">
-          <button id="applyShotBtn" type="button">Load Shot</button>
-          <button id="randomShotBtn" type="button">Random Shot</button>
-          <button id="faceoffBtn" type="button">Faceoff</button>
+          <button id="randomMotionBtn" type="button">Random Motion</button>
+          <button id="randomGraphicBtn" type="button">Random Any</button>
         </div>
 
         <div class="diagram-actions">
-          <button id="diagramBtn" class="secondary-btn" type="button">📐 View Shot Diagram</button>
-          <button id="whiteboardBtn" type="button">✏️ Table Whiteboard</button>
+          <button id="viewGraphicBtn" class="secondary-btn" type="button">📐 View Graphic</button>
+          <button id="whiteboardBtn" type="button">✏️ Whiteboard</button>
         </div>
 
         <div class="shot-meta" id="shotMeta"></div>
@@ -520,22 +534,22 @@
     </div>
   </div>
 
-  <div id="diagramModal" class="modal" aria-hidden="true">
+  <div id="viewerModal" class="modal" aria-hidden="true">
     <div class="modal-toolbar">
-      <div id="diagramTitle" class="modal-title">Shot Diagram</div>
-      <button id="openDiagramTabBtn" class="modal-tool" type="button">Open Image</button>
-      <button id="closeDiagramBtn" class="modal-tool" type="button">Close</button>
+      <div id="viewerTitle" class="modal-title">Graphic Viewer</div>
+      <button id="openGraphicTabBtn" class="modal-tool" type="button">Open Image</button>
+      <button id="closeViewerBtn" class="modal-tool" type="button">Close</button>
     </div>
     <div class="modal-stage">
-      <img id="diagramImage" class="base-image" alt="Shot diagram" />
-      <div id="diagramMissing" class="missing-image" style="display:none;"></div>
-      <div class="modal-hint">Shot diagram only. Press Esc to close.</div>
+      <img id="viewerImage" class="base-image" alt="Selected graphic" />
+      <div id="viewerMissing" class="missing-image" style="display:none;"></div>
+      <div class="modal-hint">Selected graphic only. Press Esc to close.</div>
     </div>
   </div>
 
   <div id="whiteboardModal" class="modal" aria-hidden="true">
     <div class="modal-toolbar">
-      <div id="whiteboardTitle" class="modal-title">Table Whiteboard</div>
+      <div id="whiteboardTitle" class="modal-title">Whiteboard</div>
       <button id="penToolBtn" class="modal-tool active" type="button">Pen</button>
       <button id="eraserToolBtn" class="modal-tool" type="button">Erase</button>
       <input id="whiteboardColor" class="whiteboard-color" type="color" value="#00e0ff" aria-label="Pen color" />
@@ -545,108 +559,110 @@
       <button id="closeWhiteboardBtn" class="modal-tool" type="button">Close</button>
     </div>
     <div class="modal-stage">
-      <img id="whiteboardTableImage" class="base-image" alt="Whiteboard table graphic" />
+      <img id="whiteboardImage" class="base-image" alt="Whiteboard background" />
       <canvas id="whiteboardCanvas"></canvas>
       <div id="whiteboardMissing" class="missing-image" style="display:none;"></div>
-      <div class="modal-hint">Table graphic only. Draw your own coaching notes.</div>
+      <div class="modal-hint">Draw directly on the selected graphic. Save PNG exports graphic plus marks.</div>
     </div>
   </div>
 
   <script>
-    const GENERAL_GRAPHICS_DIR = "graphics";
-    const SHOT_GRAPHICS_DIR = "graphics/shots";
+    const GRAPHICS = [
+      { type: "motion", label: "⭐ MOTION • Defense Straights", file: "graphics/shots/DEFstraights.gif", family: "Defense Straight", name: "Defense Straights", note: "Straight shot defensive movement." },
+      { type: "motion", label: "⭐ MOTION • Defense Walls", file: "graphics/shots/DEFwalls.gif", family: "Defense Wall", name: "Defense Walls", note: "Wall shot defensive movement." },
+      { type: "motion", label: "⭐ MOTION • Left Wall Over", file: "graphics/shots/motionLWO.gif", family: "Left Wall", name: "Left Wall Over", note: "Left wall over motion." },
+      { type: "motion", label: "⭐ MOTION • Left Wall Over LR", file: "graphics/shots/motionLWOLR.gif", family: "Left Wall", name: "Left Wall Over LR", note: "Left wall over alternate direction." },
+      { type: "motion", label: "⭐ MOTION • Left Wall Under", file: "graphics/shots/motionLWU.gif", family: "Left Wall", name: "Left Wall Under", note: "Left wall under motion." },
+      { type: "motion", label: "⭐ MOTION • Left Wall Under LR", file: "graphics/shots/motionLWULR.gif", family: "Left Wall", name: "Left Wall Under LR", note: "Left wall under alternate direction." },
+      { type: "motion", label: "⭐ MOTION • Right Wall Over", file: "graphics/shots/motionRWO.gif", family: "Right Wall", name: "Right Wall Over", note: "Right wall over motion." },
+      { type: "motion", label: "⭐ MOTION • Right Wall Over LR", file: "graphics/shots/motionRWOLR.gif", family: "Right Wall", name: "Right Wall Over LR", note: "Right wall over alternate direction." },
+      { type: "motion", label: "⭐ MOTION • Right Wall Under", file: "graphics/shots/motionRWU.gif", family: "Right Wall", name: "Right Wall Under", note: "Right wall under motion." },
+      { type: "motion", label: "⭐ MOTION • Right Wall Under LR", file: "graphics/shots/motionRWULR.gif", family: "Right Wall", name: "Right Wall Under LR", note: "Right wall under alternate direction." },
+      { type: "motion", label: "⭐ MOTION • Cross", file: "graphics/shots/motioncross.gif", family: "Cross", name: "Cross", note: "Cross motion." },
+      { type: "motion", label: "⭐ MOTION • Cross LR", file: "graphics/shots/motioncrossLR.gif", family: "Cross", name: "Cross LR", note: "Cross alternate direction." },
+      { type: "motion", label: "⭐ MOTION • Reverse Cross LR", file: "graphics/shots/motioncrossLRREV.gif", family: "Cross", name: "Reverse Cross LR", note: "Reverse cross alternate direction." },
+      { type: "motion", label: "⭐ MOTION • Reverse Cross", file: "graphics/shots/motioncrossREV.gif", family: "Cross", name: "Reverse Cross", note: "Reverse cross motion." },
+      { type: "motion", label: "⭐ MOTION • Cut Straight Bottom", file: "graphics/shots/motioncutstraightbottom.gif", family: "Cut", name: "Cut Straight Bottom", note: "Bottom cut motion." },
+      { type: "motion", label: "⭐ MOTION • Cut Straight Bottom LR", file: "graphics/shots/motioncutstraightbottomLR.gif", family: "Cut", name: "Cut Straight Bottom LR", note: "Bottom cut alternate direction." },
+      { type: "motion", label: "⭐ MOTION • Cut Straight Top", file: "graphics/shots/motioncutstraighttop.gif", family: "Cut", name: "Cut Straight Top", note: "Top cut motion." },
+      { type: "motion", label: "⭐ MOTION • Cut Straight Top LR", file: "graphics/shots/motioncutstraighttopLR.gif", family: "Cut", name: "Cut Straight Top LR", note: "Top cut alternate direction." },
+      { type: "motion", label: "⭐ MOTION • Double Bank LWRW", file: "graphics/shots/motiondoublebankLWRW.gif", family: "Double Bank", name: "Double Bank LWRW", note: "Left wall then right wall double bank." },
+      { type: "motion", label: "⭐ MOTION • Double Bank LWRW LR", file: "graphics/shots/motiondoublebankLWRWLR.gif", family: "Double Bank", name: "Double Bank LWRW LR", note: "Double bank alternate direction." },
+      { type: "motion", label: "⭐ MOTION • Double Bank RWLW", file: "graphics/shots/motiondoublebankRWLW.gif", family: "Double Bank", name: "Double Bank RWLW", note: "Right wall then left wall double bank." },
+      { type: "motion", label: "⭐ MOTION • Double Bank RWLW LR", file: "graphics/shots/motiondoublebankRWLWLR.gif", family: "Double Bank", name: "Double Bank RWLW LR", note: "Double bank alternate direction." },
+      { type: "motion", label: "⭐ MOTION • Triple Bank LW", file: "graphics/shots/triplebankLW.gif", family: "Triple Bank", name: "Triple Bank LW", note: "Triple bank left wall." },
+      { type: "motion", label: "⭐ MOTION • Triple Bank LW LR", file: "graphics/shots/triplebankLWLR.gif", family: "Triple Bank", name: "Triple Bank LW LR", note: "Triple bank alternate direction." },
+      { type: "motion", label: "⭐ MOTION • Triple Bank RW", file: "graphics/shots/triplebankRW.gif", family: "Triple Bank", name: "Triple Bank RW", note: "Triple bank right wall." },
+      { type: "motion", label: "⭐ MOTION • Triple Bank RW LR", file: "graphics/shots/triplebankRWLR.gif", family: "Triple Bank", name: "Triple Bank RW LR", note: "Triple bank alternate direction." },
+      { type: "motion", label: "⭐ MOTION • Turkey Shot REV to LW", file: "graphics/shots/turkeyshotREVtoLW.gif", family: "Turkey Shot", name: "Turkey Shot REV to LW", note: "Turkey shot to left wall." },
+      { type: "motion", label: "⭐ MOTION • Turkey Shot REV to LW 2", file: "graphics/shots/turkeyshotREVtoLW2.gif", family: "Turkey Shot", name: "Turkey Shot REV to LW 2", note: "Turkey shot to left wall alternate." },
+      { type: "motion", label: "⭐ MOTION • Turkey Shot REV to RW", file: "graphics/shots/turkeyshotREVtoRW.gif", family: "Turkey Shot", name: "Turkey Shot REV to RW", note: "Turkey shot to right wall." },
+      { type: "motion", label: "⭐ MOTION • Turkey Shot REV to RW 2", file: "graphics/shots/turkeyshotREVtoRW2.gif", family: "Turkey Shot", name: "Turkey Shot REV to RW 2", note: "Turkey shot to right wall alternate." },
 
-    const TABLE_GRAPHICS = [
-      { id: "tablegraphic-updown", label: "Generic Table Graphic Up/Down", file: "tablegraphicupdown.png" },
-      { id: "tablegraphic-leftright", label: "Generic Table Graphic Left/Right", file: "tablegraphicleftright.png" },
-      { id: "dynamo-pro-updown", label: "Dynamo Pro Up/Down", file: "Dynamoprupdown.png" },
-      { id: "dynamo-pro-leftright", label: "Dynamo Pro Left/Right", file: "Dynamoproleftright.png" },
-      { id: "dynamo-large-updown", label: "Dynamo Large Up/Down", file: "dynamolargeupdown.png" },
-      { id: "dynamo-large-leftright", label: "Dynamo Large Left/Right", file: "dynamolargeleftright.png" },
-      { id: "dynamo-black-updown", label: "Dynamo Black Up/Down", file: "dynamoblackupdown.png" },
-      { id: "dynamo-black-leftright", label: "Dynamo Black Left/Right", file: "dynamoblackleftright.png" },
-      { id: "dynamo-brown-updown", label: "Dynamo Brown Up/Down", file: "dynamobrownupdown.png" },
-      { id: "dynamo-brown-leftright", label: "Dynamo Brown Left/Right", file: "dynamobrownleftright.png" },
-      { id: "dynamo-darkblue-updown", label: "Dynamo Dark Blue Up/Down", file: "dynamodarkbluupdown.png" },
-      { id: "dynamo-darkblue-leftright", label: "Dynamo Dark Blue Left/Right", file: "dynamodarkblueleftright.png" },
-      { id: "dynamo-purple-updown", label: "Dynamo Purple Up/Down", file: "dynamopurpleupdown.png" },
-      { id: "dynamo-purple-leftright", label: "Dynamo Purple Left/Right", file: "dynamopurpleleftright.png" },
-      { id: "brunswick-updown", label: "Brunswick Up/Down", file: "brunswickupdwon.png" },
-      { id: "brunswick-leftright", label: "Brunswick Left/Right", file: "brunswickleftright.png" },
-      { id: "brunswick-no-logo-updown", label: "Brunswick No Logo Up/Down", file: "brunswicknologoupdown.png" },
-      { id: "brunswick-no-logo-leftright", label: "Brunswick No Logo Left/Right", file: "brunswicknologoleftright.png" },
-      { id: "gsg-updown", label: "Gold Standard Games Up/Down", file: "GSGupdown.png" },
-      { id: "gsg-leftright", label: "Gold Standard Games Left/Right", file: "GSGleftright.png" },
-      { id: "gsg-ice-updown", label: "GSG Ice Up/Down", file: "GSGiceupdown.png" },
-      { id: "gsg-ice-leftright", label: "GSG Ice Left/Right", file: "GSGiceleftright.png" },
-      { id: "photon-updown", label: "Photon Up/Down", file: "photonupdown.png" },
-      { id: "photon-leftright", label: "Photon Left/Right", file: "photonleftright.png" },
-      { id: "faceoff-red-dynamo", label: "FaceOff Red Dynamo", file: "FaceOffRedDynamo.png" },
-      { id: "faceoff-red-dynamo-black", label: "FaceOff Red Dynamo Black", file: "FaceOffRedDynamoBlack.png" },
-      { id: "faceoff-red-dynamo-blue-bll", label: "FaceOff Red Dynamo Blue BLL", file: "FaceOffRedDynamoBlueBLL.png" },
-      { id: "faceoff-red-dynamo-blue-wll", label: "FaceOff Red Dynamo Blue WLL", file: "FaceOffRedDynamoBlueWLL.png" },
-      { id: "faceoff-red-dynamo-brown", label: "FaceOff Red Dynamo Brown", file: "FaceOffRedDynamoBrown.png" },
-      { id: "faceoff-red-dynamo-purple", label: "FaceOff Red Dynamo Purple", file: "FaceOffRedDynamoPurple.png" },
-      { id: "faceoff-red-brunswick", label: "FaceOff Red Brunswick", file: "FaceOffRedBrunswick.png" },
-      { id: "faceoff-red-gsg-blue", label: "FaceOff Red GSG Blue", file: "FaceOffRedGSGLBlue.png" },
-      { id: "faceoff-yellow-dynamo", label: "FaceOff Yellow Dynamo", file: "FaceOffYellowDynamo.png" },
-      { id: "faceoff-yellow-dynamo-black", label: "FaceOff Yellow Dynamo Black", file: "FaceOffYellowDynamoBlack.png" },
-      { id: "faceoff-yellow-dynamo-blue-bll", label: "FaceOff Yellow Dynamo Blue BLL", file: "FaceOffYellowDynamoBlueBLL.png" },
-      { id: "faceoff-yellow-dynamo-blue-wll", label: "FaceOff Yellow Dynamo Blue WLL", file: "FaceOffYellowDynamoBlueWLL.png" },
-      { id: "faceoff-yellow-dynamo-brown", label: "FaceOff Yellow Dynamo Brown", file: "FaceOffYellowDynamoBrown.png" },
-      { id: "faceoff-yellow-dynamo-purple", label: "FaceOff Yellow Dynamo Purple", file: "FaceOffYellowDynamoPurple.png" },
-      { id: "faceoff-yellow-brunswick", label: "FaceOff Yellow Brunswick", file: "FaceOffYellowBrunswick.png" },
-      { id: "faceoff-yellow-gsg-blue", label: "FaceOff Yellow GSG Blue", file: "FaceOffYellowGSGLBlue.png" },
-      { id: "photo-wood-dynamo", label: "Photo Wood Dynamo", file: "0000570_wood-dynamo-air-hockey.jpeg" },
-      { id: "photo-18622", label: "Photo Table 18622", file: "18622-392222.jpg" },
-      { id: "photo-7926", label: "Photo Table 7926", file: "7926_8.jpg" },
-      { id: "photo-screenshot", label: "Photo Screenshot Table", file: "Screen-Shot-2019-02-07-at-10.24.35-AM.png" },
-      { id: "wallpaper", label: "Wallpaper", file: "wallpaper.png" },
-      { id: "wallpaper2", label: "Wallpaper 2", file: "wallpaper2.png" }
+      { type: "table", label: "TABLE • Generic Table Graphic Up/Down", file: "graphics/tablegraphicupdown.png", family: "Table", name: "Generic Table Graphic Up/Down", note: "Plain table whiteboard background." },
+      { type: "table", label: "TABLE • Generic Table Graphic Left/Right", file: "graphics/tablegraphicleftright.png", family: "Table", name: "Generic Table Graphic Left/Right", note: "Plain table whiteboard background." },
+      { type: "table", label: "TABLE • Dynamo Pro Up/Down", file: "graphics/Dynamoprupdown.png", family: "Table", name: "Dynamo Pro Up/Down", note: "Dynamo Pro table graphic." },
+      { type: "table", label: "TABLE • Dynamo Pro Left/Right", file: "graphics/Dynamoproleftright.png", family: "Table", name: "Dynamo Pro Left/Right", note: "Dynamo Pro table graphic." },
+      { type: "table", label: "TABLE • Dynamo Large Up/Down", file: "graphics/dynamolargeupdown.png", family: "Table", name: "Dynamo Large Up/Down", note: "Dynamo large table graphic." },
+      { type: "table", label: "TABLE • Dynamo Large Left/Right", file: "graphics/dynamolargeleftright.png", family: "Table", name: "Dynamo Large Left/Right", note: "Dynamo large table graphic." },
+      { type: "table", label: "TABLE • Dynamo Black Up/Down", file: "graphics/dynamoblackupdown.png", family: "Table", name: "Dynamo Black Up/Down", note: "Dynamo black table graphic." },
+      { type: "table", label: "TABLE • Dynamo Black Left/Right", file: "graphics/dynamoblackleftright.png", family: "Table", name: "Dynamo Black Left/Right", note: "Dynamo black table graphic." },
+      { type: "table", label: "TABLE • Dynamo Brown Up/Down", file: "graphics/dynamobrownupdown.png", family: "Table", name: "Dynamo Brown Up/Down", note: "Dynamo brown table graphic." },
+      { type: "table", label: "TABLE • Dynamo Brown Left/Right", file: "graphics/dynamobrownleftright.png", family: "Table", name: "Dynamo Brown Left/Right", note: "Dynamo brown table graphic." },
+      { type: "table", label: "TABLE • Dynamo Dark Blue Up/Down", file: "graphics/dynamodarkbluupdown.png", family: "Table", name: "Dynamo Dark Blue Up/Down", note: "Dynamo dark blue table graphic." },
+      { type: "table", label: "TABLE • Dynamo Dark Blue Left/Right", file: "graphics/dynamodarkblueleftright.png", family: "Table", name: "Dynamo Dark Blue Left/Right", note: "Dynamo dark blue table graphic." },
+      { type: "table", label: "TABLE • Dynamo Purple Up/Down", file: "graphics/dynamopurpleupdown.png", family: "Table", name: "Dynamo Purple Up/Down", note: "Dynamo purple table graphic." },
+      { type: "table", label: "TABLE • Dynamo Purple Left/Right", file: "graphics/dynamopurpleleftright.png", family: "Table", name: "Dynamo Purple Left/Right", note: "Dynamo purple table graphic." },
+      { type: "table", label: "TABLE • Brunswick Up/Down", file: "graphics/brunswickupdwon.png", family: "Table", name: "Brunswick Up/Down", note: "Brunswick table graphic." },
+      { type: "table", label: "TABLE • Brunswick Left/Right", file: "graphics/brunswickleftright.png", family: "Table", name: "Brunswick Left/Right", note: "Brunswick table graphic." },
+      { type: "table", label: "TABLE • Brunswick No Logo Up/Down", file: "graphics/brunswicknologoupdown.png", family: "Table", name: "Brunswick No Logo Up/Down", note: "Brunswick no logo table graphic." },
+      { type: "table", label: "TABLE • Brunswick No Logo Left/Right", file: "graphics/brunswicknologoleftright.png", family: "Table", name: "Brunswick No Logo Left/Right", note: "Brunswick no logo table graphic." },
+      { type: "table", label: "TABLE • Gold Standard Games Up/Down", file: "graphics/GSGupdown.png", family: "Table", name: "Gold Standard Games Up/Down", note: "Gold Standard Games table graphic." },
+      { type: "table", label: "TABLE • Gold Standard Games Left/Right", file: "graphics/GSGleftright.png", family: "Table", name: "Gold Standard Games Left/Right", note: "Gold Standard Games table graphic." },
+      { type: "table", label: "TABLE • GSG Ice Up/Down", file: "graphics/GSGiceupdown.png", family: "Table", name: "GSG Ice Up/Down", note: "GSG Ice table graphic." },
+      { type: "table", label: "TABLE • GSG Ice Left/Right", file: "graphics/GSGiceleftright.png", family: "Table", name: "GSG Ice Left/Right", note: "GSG Ice table graphic." },
+      { type: "table", label: "TABLE • Photon Up/Down", file: "graphics/photonupdown.png", family: "Table", name: "Photon Up/Down", note: "Photon table graphic." },
+      { type: "table", label: "TABLE • Photon Left/Right", file: "graphics/photonleftright.png", family: "Table", name: "Photon Left/Right", note: "Photon table graphic." },
+      { type: "table", label: "TABLE • FaceOff Red Dynamo", file: "graphics/FaceOffRedDynamo.png", family: "Table", name: "FaceOff Red Dynamo", note: "FaceOff red table graphic." },
+      { type: "table", label: "TABLE • FaceOff Red Dynamo Black", file: "graphics/FaceOffRedDynamoBlack.png", family: "Table", name: "FaceOff Red Dynamo Black", note: "FaceOff red table graphic." },
+      { type: "table", label: "TABLE • FaceOff Red Dynamo Blue BLL", file: "graphics/FaceOffRedDynamoBlueBLL.png", family: "Table", name: "FaceOff Red Dynamo Blue BLL", note: "FaceOff red table graphic." },
+      { type: "table", label: "TABLE • FaceOff Red Dynamo Blue WLL", file: "graphics/FaceOffRedDynamoBlueWLL.png", family: "Table", name: "FaceOff Red Dynamo Blue WLL", note: "FaceOff red table graphic." },
+      { type: "table", label: "TABLE • FaceOff Red Dynamo Brown", file: "graphics/FaceOffRedDynamoBrown.png", family: "Table", name: "FaceOff Red Dynamo Brown", note: "FaceOff red table graphic." },
+      { type: "table", label: "TABLE • FaceOff Red Dynamo Purple", file: "graphics/FaceOffRedDynamoPurple.png", family: "Table", name: "FaceOff Red Dynamo Purple", note: "FaceOff red table graphic." },
+      { type: "table", label: "TABLE • FaceOff Red Brunswick", file: "graphics/FaceOffRedBrunswick.png", family: "Table", name: "FaceOff Red Brunswick", note: "FaceOff red table graphic." },
+      { type: "table", label: "TABLE • FaceOff Red GSG Blue", file: "graphics/FaceOffRedGSGLBlue.png", family: "Table", name: "FaceOff Red GSG Blue", note: "FaceOff red table graphic." },
+      { type: "table", label: "TABLE • FaceOff Yellow Dynamo", file: "graphics/FaceOffYellowDynamo.png", family: "Table", name: "FaceOff Yellow Dynamo", note: "FaceOff yellow table graphic." },
+      { type: "table", label: "TABLE • FaceOff Yellow Dynamo Black", file: "graphics/FaceOffYellowDynamoBlack.png", family: "Table", name: "FaceOff Yellow Dynamo Black", note: "FaceOff yellow table graphic." },
+      { type: "table", label: "TABLE • FaceOff Yellow Dynamo Blue BLL", file: "graphics/FaceOffYellowDynamoBlueBLL.png", family: "Table", name: "FaceOff Yellow Dynamo Blue BLL", note: "FaceOff yellow table graphic." },
+      { type: "table", label: "TABLE • FaceOff Yellow Dynamo Blue WLL", file: "graphics/FaceOffYellowDynamoBlueWLL.png", family: "Table", name: "FaceOff Yellow Dynamo Blue WLL", note: "FaceOff yellow table graphic." },
+      { type: "table", label: "TABLE • FaceOff Yellow Dynamo Brown", file: "graphics/FaceOffYellowDynamoBrown.png", family: "Table", name: "FaceOff Yellow Dynamo Brown", note: "FaceOff yellow table graphic." },
+      { type: "table", label: "TABLE • FaceOff Yellow Dynamo Purple", file: "graphics/FaceOffYellowDynamoPurple.png", family: "Table", name: "FaceOff Yellow Dynamo Purple", note: "FaceOff yellow table graphic." },
+      { type: "table", label: "TABLE • FaceOff Yellow Brunswick", file: "graphics/FaceOffYellowBrunswick.png", family: "Table", name: "FaceOff Yellow Brunswick", note: "FaceOff yellow table graphic." },
+      { type: "table", label: "TABLE • FaceOff Yellow GSG Blue", file: "graphics/FaceOffYellowGSGLBlue.png", family: "Table", name: "FaceOff Yellow GSG Blue", note: "FaceOff yellow table graphic." },
+      { type: "table", label: "TABLE • Photo Wood Dynamo", file: "graphics/0000570_wood-dynamo-air-hockey.jpeg", family: "Table", name: "Photo Wood Dynamo", note: "Photo table reference." },
+      { type: "table", label: "TABLE • Photo Table 18622", file: "graphics/18622-392222.jpg", family: "Table", name: "Photo Table 18622", note: "Photo table reference." },
+      { type: "table", label: "TABLE • Photo Table 7926", file: "graphics/7926_8.jpg", family: "Table", name: "Photo Table 7926", note: "Photo table reference." },
+      { type: "table", label: "TABLE • Screenshot Table", file: "graphics/Screen-Shot-2019-02-07-at-10.24.35-AM.png", family: "Table", name: "Screenshot Table", note: "Photo table reference." },
+      { type: "table", label: "TABLE • Wallpaper", file: "graphics/wallpaper.png", family: "Table", name: "Wallpaper", note: "Background graphic." },
+      { type: "table", label: "TABLE • Wallpaper 2", file: "graphics/wallpaper2.png", family: "Table", name: "Wallpaper 2", note: "Background graphic." }
     ];
 
     const FAMILY_COLORS = {
-      "Faceoff": "#ffffff",
-      "Basic Point": "#ffd54f",
+      "Graphic": "#ffffff",
+      "Table": "#57ff99",
+      "Defense Straight": "#c0c0c0",
+      "Defense Wall": "#9e9e9e",
+      "Left Wall": "#4caf50",
+      "Right Wall": "#ff9800",
       "Cross": "#00e0ff",
       "Cut": "#ff6666",
-      "Defense Straight": "#c0c0c0",
-      "Right Wall": "#ff9800",
-      "Left Wall": "#4caf50",
-      "Defense Wall": "#9e9e9e",
       "Double Bank": "#ba68c8",
       "Triple Bank": "#ef5350",
       "Turkey Shot": "#ffca28"
     };
 
-    const SHOTS = [
-      { id: "faceoff", family: "Faceoff", name: "Starting Position", variant: "Both players centered", note: "Puck in the middle. Mallet on the back line. Eyes up.", side: "Neutral", path: "Center", diagram: "", tags: ["setup", "reset"] },
-      { id: "basic-point", family: "Basic Point", name: "One Point", variant: "Straight finish", note: "Clean, simple, straight. The foundation for everything else.", side: "Center", path: "Straight", diagram: "motioncross.gif", tags: ["fundamentals"] },
-      { id: "cross-straight-lr", family: "Cross", name: "Cross Straight", variant: "Right hand, left to right", note: "Classic cross. Start left, drive through center, finish on the right corner.", side: "Left to Right", path: "Straight", diagram: "motioncrossLR.gif", tags: ["offense"] },
-      { id: "cross-straight-rl", family: "Cross", name: "Cross Straight", variant: "Right hand, right to left", note: "Mirror image. Same motion, other side.", side: "Right to Left", path: "Straight", diagram: "motioncross.gif", tags: ["offense"] },
-      { id: "reverse-cross-lr", family: "Cross", name: "Reverse Cross", variant: "Right hand, left to right", note: "Reverse takeoff, same lane. Great changeup when they read your regular cross.", side: "Left to Right", path: "Reverse", diagram: "motioncrossLRREV.gif", tags: ["offense", "trick"] },
-      { id: "reverse-cross-rl", family: "Cross", name: "Reverse Cross", variant: "Right hand, right to left", note: "Reverse motion to the opposite side. Sell the straight, send it across.", side: "Right to Left", path: "Reverse", diagram: "motioncrossREV.gif", tags: ["offense", "trick"] },
-      { id: "cut-bottom", family: "Cut", name: "Cut Straight Bottom", variant: "Right hand", note: "Drive through the bottom lane. Fast, direct, hard to read if your setup is honest.", side: "Bottom", path: "Straight", diagram: "motioncutstraightbottom.gif", tags: ["offense"] },
-      { id: "cut-top", family: "Cut", name: "Cut Straight Top", variant: "Right hand", note: "Same idea, top lane. Pairs well with bottom and cross to create a three point threat.", side: "Top", path: "Straight", diagram: "motioncutstraighttop.gif", tags: ["offense"] },
-      { id: "def-straight-basic", family: "Defense Straight", name: "Center Block", variant: "Back and forth defense", note: "Track the line, not the mallet. Glide through the straight lanes instead of chasing.", side: "Center", path: "Straight", diagram: "DEFstraights.gif", tags: ["defense"] },
-      { id: "rwu", family: "Right Wall", name: "Right Wall Under", variant: "Right hand", note: "Off the right wall, under the mallet, into the goal. Bread and butter wall shot.", side: "Right", path: "Under", diagram: "motionRWU.gif", tags: ["offense", "wall"] },
-      { id: "rwo", family: "Right Wall", name: "Right Wall Over", variant: "Right hand", note: "Same lane start as RWU, but this one lifts over the expected block.", side: "Right", path: "Over", diagram: "motionRWO.gif", tags: ["offense", "wall"] },
-      { id: "lwu", family: "Left Wall", name: "Left Wall Under", variant: "Right hand", note: "Mirror of RWU on the left side. Great for players who overplay your right wall.", side: "Left", path: "Under", diagram: "motionLWU.gif", tags: ["offense", "wall"] },
-      { id: "lwo", family: "Left Wall", name: "Left Wall Over", variant: "Right hand", note: "Same start as LWU, but float it over the block for a nasty surprise.", side: "Left", path: "Over", diagram: "motionLWO.gif", tags: ["offense", "wall"] },
-      { id: "def-wall-triangle", family: "Defense Wall", name: "Triangle Defense", variant: "Wall shot coverage", note: "Rotate through three spots that shut down wall under, over, and basic crosses.", side: "Both walls", path: "Triangle pattern", diagram: "DEFwalls.gif", tags: ["defense", "wall"] },
-      { id: "double-bank-rwlw", family: "Double Bank", name: "Right to Left Double Bank", variant: "RWLW", note: "Right wall, left wall, then home. Fancy, but powerful when sold off a normal wall game.", side: "Right and Left walls", path: "RWLW", diagram: "motiondoublebankRWLW.gif", tags: ["trick", "bank"] },
-      { id: "double-bank-lwrw", family: "Double Bank", name: "Left to Right Double Bank", variant: "LWRW", note: "Left wall first, then right. Use it as a once a game surprise.", side: "Left and Right walls", path: "LWRW", diagram: "motiondoublebankLWRW.gif", tags: ["trick", "bank"] },
-      { id: "triple-bank-rw", family: "Triple Bank", name: "Triple Bank Right", variant: "Right heavy pattern", note: "High flair, high risk. Know the lanes cold before you whip this out.", side: "Right", path: "Triple bank", diagram: "triplebankRW.gif", tags: ["trick", "bank"] },
-      { id: "triple-bank-lw", family: "Triple Bank", name: "Triple Bank Left", variant: "Left heavy pattern", note: "Same energy, mirrored path. Practice both so you are not a one side wonder.", side: "Left", path: "Triple bank", diagram: "triplebankLW.gif", tags: ["trick", "bank"] },
-      { id: "turkey-rw", family: "Turkey Shot", name: "Turkey Shot Right", variant: "Right wall pattern", note: "Think of it as a wall shot that gobbles up bad defense three times in a row.", side: "Right", path: "Turkey pattern", diagram: "turkeyshotREVtoRW.gif", tags: ["offense", "special"] },
-      { id: "turkey-lw", family: "Turkey Shot", name: "Turkey Shot Left", variant: "Left wall pattern", note: "Mirror on the left. Extra gravy if you pair it with clean straight threats.", side: "Left", path: "Turkey pattern", diagram: "turkeyshotREVtoLW.gif", tags: ["offense", "special"] }
-    ];
-
-    const families = Array.from(new Set(SHOTS.map(s => s.family)));
-
-    const familySelect = document.getElementById("familySelect");
-    const shotSelect = document.getElementById("shotSelect");
-    const tableSelect = document.getElementById("tableSelect");
+    const graphicSelect = document.getElementById("graphicSelect");
+    const graphicTypeChip = document.getElementById("graphicTypeChip");
     const puck = document.getElementById("puck");
     const shotFamilyPill = document.getElementById("shotFamilyPill");
     const shotNameEl = document.getElementById("shotName");
@@ -655,22 +671,21 @@
     const shotMetaEl = document.getElementById("shotMeta");
     const shotTagsEl = document.getElementById("shotTags");
     const localStatus = document.getElementById("localStatus");
-    const applyShotBtn = document.getElementById("applyShotBtn");
-    const randomShotBtn = document.getElementById("randomShotBtn");
-    const faceoffBtn = document.getElementById("faceoffBtn");
-    const diagramBtn = document.getElementById("diagramBtn");
+    const randomMotionBtn = document.getElementById("randomMotionBtn");
+    const randomGraphicBtn = document.getElementById("randomGraphicBtn");
+    const viewGraphicBtn = document.getElementById("viewGraphicBtn");
     const whiteboardBtn = document.getElementById("whiteboardBtn");
 
-    const diagramModal = document.getElementById("diagramModal");
-    const diagramTitle = document.getElementById("diagramTitle");
-    const diagramImage = document.getElementById("diagramImage");
-    const diagramMissing = document.getElementById("diagramMissing");
-    const openDiagramTabBtn = document.getElementById("openDiagramTabBtn");
-    const closeDiagramBtn = document.getElementById("closeDiagramBtn");
+    const viewerModal = document.getElementById("viewerModal");
+    const viewerTitle = document.getElementById("viewerTitle");
+    const viewerImage = document.getElementById("viewerImage");
+    const viewerMissing = document.getElementById("viewerMissing");
+    const openGraphicTabBtn = document.getElementById("openGraphicTabBtn");
+    const closeViewerBtn = document.getElementById("closeViewerBtn");
 
     const whiteboardModal = document.getElementById("whiteboardModal");
     const whiteboardTitle = document.getElementById("whiteboardTitle");
-    const whiteboardTableImage = document.getElementById("whiteboardTableImage");
+    const whiteboardImage = document.getElementById("whiteboardImage");
     const whiteboardCanvas = document.getElementById("whiteboardCanvas");
     const whiteboardMissing = document.getElementById("whiteboardMissing");
     const penToolBtn = document.getElementById("penToolBtn");
@@ -681,11 +696,9 @@
     const clearWhiteboardBtn = document.getElementById("clearWhiteboardBtn");
     const closeWhiteboardBtn = document.getElementById("closeWhiteboardBtn");
 
-    let currentShot = null;
-    let currentDiagramSrc = "";
-    let currentTableSrc = "";
-    let diagramExists = false;
-    let tableExists = false;
+    let currentGraphic = null;
+    let currentSrc = "";
+    let currentExists = false;
     let drawing = false;
     let whiteboardTool = "pen";
     let lastX = 0;
@@ -694,20 +707,6 @@
     function makePuckGradient(color) {
       const dark = "#050505";
       return `radial-gradient(circle at 30% 20%, #ffffff 0, #f3f3f3 14%, ${color} 55%, ${dark} 92%)`;
-    }
-
-    function shotDiagramPath(shot) {
-      return shot && shot.diagram ? `${SHOT_GRAPHICS_DIR}/${shot.diagram}` : "";
-    }
-
-    function tablePath() {
-      const table = TABLE_GRAPHICS.find(t => t.id === tableSelect.value) || TABLE_GRAPHICS[0];
-      return `${GENERAL_GRAPHICS_DIR}/${table.file}`;
-    }
-
-    function currentTableLabel() {
-      const table = TABLE_GRAPHICS.find(t => t.id === tableSelect.value) || TABLE_GRAPHICS[0];
-      return table.label;
     }
 
     function testImage(src) {
@@ -723,94 +722,71 @@
       });
     }
 
-    async function resolveAssets() {
-      currentDiagramSrc = shotDiagramPath(currentShot);
-      currentTableSrc = tablePath();
-      diagramExists = Boolean(await testImage(currentDiagramSrc));
-      tableExists = Boolean(await testImage(currentTableSrc));
+    function populateGraphics() {
+      graphicSelect.innerHTML = "";
 
-      const diagramLine = currentDiagramSrc
-        ? diagramExists
-          ? `Shot diagram loaded:<br><strong>${currentDiagramSrc}</strong>`
-          : `Shot diagram missing:<br><strong>${currentDiagramSrc}</strong>`
-        : "Shot diagram: none for this item";
-
-      const tableLine = tableExists
-        ? `Whiteboard table loaded:<br><strong>${currentTableSrc}</strong>`
-        : `Whiteboard table missing:<br><strong>${currentTableSrc}</strong>`;
-
-      localStatus.innerHTML = `${diagramLine}<br><br>${tableLine}`;
-    }
-
-    function populateFamilies() {
-      familySelect.innerHTML = "";
-      families.forEach(fam => {
+      const motionGroup = document.createElement("optgroup");
+      motionGroup.label = "⭐ Motion Shots";
+      GRAPHICS.filter(g => g.type === "motion").forEach((graphic, index) => {
         const opt = document.createElement("option");
-        opt.value = fam;
-        opt.textContent = fam;
-        familySelect.appendChild(opt);
+        opt.value = String(index);
+        opt.textContent = graphic.label;
+        opt.className = "motion-option";
+        motionGroup.appendChild(opt);
       });
-    }
+      graphicSelect.appendChild(motionGroup);
 
-    function populateShotsForFamily(family) {
-      shotSelect.innerHTML = "";
-      SHOTS.filter(s => s.family === family).forEach(s => {
+      const tableGroup = document.createElement("optgroup");
+      tableGroup.label = "Table Graphics";
+      GRAPHICS.forEach((graphic, index) => {
+        if (graphic.type !== "table") return;
         const opt = document.createElement("option");
-        opt.value = s.id;
-        opt.textContent = s.name + (s.variant ? " • " + s.variant : "");
-        shotSelect.appendChild(opt);
+        opt.value = String(index);
+        opt.textContent = graphic.label;
+        opt.className = "table-option";
+        tableGroup.appendChild(opt);
       });
+      graphicSelect.appendChild(tableGroup);
     }
 
-    function populateTables() {
-      tableSelect.innerHTML = "";
-      TABLE_GRAPHICS.forEach(table => {
-        const opt = document.createElement("option");
-        opt.value = table.id;
-        opt.textContent = table.label;
-        tableSelect.appendChild(opt);
-      });
-    }
+    async function applyGraphic(graphic) {
+      currentGraphic = graphic;
+      currentSrc = graphic.file;
+      currentExists = Boolean(await testImage(currentSrc));
 
-    function getShotById(id) {
-      return SHOTS.find(s => s.id === id) || SHOTS[0];
-    }
+      const color = FAMILY_COLORS[graphic.family] || "#dddddd";
+      puck.style.background = makePuckGradient(color);
 
-    function applyShot(shot) {
-      currentShot = shot;
-      const familyColor = FAMILY_COLORS[shot.family] || "#dddddd";
-      puck.style.background = makePuckGradient(familyColor);
+      shotFamilyPill.textContent = graphic.type === "motion" ? "Motion Shot" : "Table Graphic";
+      shotNameEl.textContent = graphic.name;
+      shotVariantEl.textContent = graphic.family || "Graphic";
+      shotNoteEl.textContent = graphic.note || "Open as a graphic or draw over it in whiteboard mode.";
 
-      shotFamilyPill.textContent = shot.family;
-      shotNameEl.textContent = shot.name;
-      shotVariantEl.textContent = shot.variant || "";
-      shotNoteEl.textContent = shot.note || "";
+      graphicTypeChip.textContent = graphic.type === "motion" ? "⭐ Motion Shot" : "Table Graphic";
+      graphicTypeChip.style.color = graphic.type === "motion" ? "#00e0ff" : "#57ff99";
+      graphicTypeChip.style.borderColor = graphic.type === "motion" ? "rgba(0,224,255,0.45)" : "rgba(87,255,153,0.45)";
 
-      const metaBits = [];
-      if (shot.side) metaBits.push(`<span>Side: <strong>${shot.side}</strong></span>`);
-      if (shot.path) metaBits.push(`<span>Path: <strong>${shot.path}</strong></span>`);
-      shotMetaEl.innerHTML = metaBits.join(" • ");
+      shotMetaEl.innerHTML = `<span>Type: <strong>${graphic.type === "motion" ? "Motion Shot" : "Table Graphic"}</strong></span> • <span>File: <strong>${graphic.file}</strong></span>`;
 
       shotTagsEl.innerHTML = "";
-      if (shot.tags && shot.tags.length) {
-        shot.tags.forEach(tag => {
-          const span = document.createElement("span");
-          span.className = "tag";
-          span.textContent = tag;
-          shotTagsEl.appendChild(span);
-        });
-      }
+      [graphic.type, graphic.family].filter(Boolean).forEach(tag => {
+        const span = document.createElement("span");
+        span.className = "tag";
+        span.textContent = tag;
+        shotTagsEl.appendChild(span);
+      });
 
-      resolveAssets();
+      localStatus.innerHTML = currentExists
+        ? `Graphic loaded:<br><strong>${currentSrc}</strong>`
+        : `Graphic missing:<br><strong>${currentSrc}</strong><br><br>Check capitalization and spaces exactly.`;
 
       puck.classList.remove("glow");
       void puck.offsetWidth;
       puck.classList.add("glow");
     }
 
-    function shotDisplayTitle() {
-      if (!currentShot) return "Shot Diagram";
-      return `${currentShot.name}${currentShot.variant ? " • " + currentShot.variant : ""}`;
+    function getSelectedGraphic() {
+      return GRAPHICS[Number(graphicSelect.value)] || GRAPHICS[0];
     }
 
     function showMissing(el, message) {
@@ -818,27 +794,27 @@
       el.innerHTML = `<strong>Graphic missing.</strong><br>${message}<br><br>GitHub Pages paths are case sensitive.`;
     }
 
-    async function openDiagram() {
-      await resolveAssets();
-      diagramTitle.textContent = shotDisplayTitle();
-      diagramModal.classList.add("active");
-      diagramModal.setAttribute("aria-hidden", "false");
+    async function openViewer() {
+      await applyGraphic(getSelectedGraphic());
+      viewerTitle.textContent = currentGraphic.name;
+      viewerModal.classList.add("active");
+      viewerModal.setAttribute("aria-hidden", "false");
       document.body.style.overflow = "hidden";
 
-      if (diagramExists && currentDiagramSrc) {
-        diagramMissing.style.display = "none";
-        diagramImage.style.display = "block";
-        diagramImage.src = currentDiagramSrc;
+      if (currentExists && currentSrc) {
+        viewerMissing.style.display = "none";
+        viewerImage.style.display = "block";
+        viewerImage.src = currentSrc;
       } else {
-        diagramImage.style.display = "none";
-        diagramImage.removeAttribute("src");
-        showMissing(diagramMissing, currentDiagramSrc ? `Could not load:<br><strong>${currentDiagramSrc}</strong>` : "No shot diagram assigned to this item.");
+        viewerImage.style.display = "none";
+        viewerImage.removeAttribute("src");
+        showMissing(viewerMissing, `Could not load:<br><strong>${currentSrc}</strong>`);
       }
     }
 
-    function closeDiagram() {
-      diagramModal.classList.remove("active");
-      diagramModal.setAttribute("aria-hidden", "true");
+    function closeViewer() {
+      viewerModal.classList.remove("active");
+      viewerModal.setAttribute("aria-hidden", "true");
       document.body.style.overflow = "";
     }
 
@@ -929,20 +905,20 @@
     }
 
     async function openWhiteboard() {
-      await resolveAssets();
-      whiteboardTitle.textContent = `Table Whiteboard • ${currentTableLabel()}`;
+      await applyGraphic(getSelectedGraphic());
+      whiteboardTitle.textContent = `Whiteboard • ${currentGraphic.name}`;
       whiteboardModal.classList.add("active");
       whiteboardModal.setAttribute("aria-hidden", "false");
       document.body.style.overflow = "hidden";
 
-      if (tableExists && currentTableSrc) {
+      if (currentExists && currentSrc) {
         whiteboardMissing.style.display = "none";
-        whiteboardTableImage.style.display = "block";
-        whiteboardTableImage.src = currentTableSrc;
+        whiteboardImage.style.display = "block";
+        whiteboardImage.src = currentSrc;
       } else {
-        whiteboardTableImage.style.display = "none";
-        whiteboardTableImage.removeAttribute("src");
-        showMissing(whiteboardMissing, `Could not load:<br><strong>${currentTableSrc}</strong>`);
+        whiteboardImage.style.display = "none";
+        whiteboardImage.removeAttribute("src");
+        showMissing(whiteboardMissing, `Could not load:<br><strong>${currentSrc}</strong>`);
       }
 
       setTimeout(() => {
@@ -990,68 +966,51 @@
       exportCtx.fillStyle = "#071018";
       exportCtx.fillRect(0, 0, width, height);
 
-      if (tableExists && whiteboardTableImage.complete) {
-        drawImageContain(exportCtx, whiteboardTableImage, 0, 0, width, height);
+      if (currentExists && whiteboardImage.complete) {
+        drawImageContain(exportCtx, whiteboardImage, 0, 0, width, height);
       }
 
       exportCtx.drawImage(whiteboardCanvas, 0, 0, width, height);
 
-      const table = TABLE_GRAPHICS.find(t => t.id === tableSelect.value) || TABLE_GRAPHICS[0];
+      const safeName = (currentGraphic?.name || "whiteboard").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
       const link = document.createElement("a");
-      link.download = `${table.id}-whiteboard.png`;
+      link.download = `${safeName}-whiteboard.png`;
       link.href = exportCanvas.toDataURL("image/png");
       link.click();
     }
 
-    function openDiagramInTab() {
-      if (currentDiagramSrc) window.open(currentDiagramSrc, "_blank", "noopener");
+    function openGraphicInTab() {
+      if (currentSrc) window.open(currentSrc, "_blank", "noopener");
     }
 
     function init() {
-      populateFamilies();
-      populateTables();
-      tableSelect.value = "tablegraphic-updown";
-      familySelect.value = "Faceoff";
-      populateShotsForFamily("Faceoff");
-      shotSelect.value = "faceoff";
-      applyShot(getShotById("faceoff"));
+      populateGraphics();
+      graphicSelect.value = "0";
+      applyGraphic(getSelectedGraphic());
     }
 
-    familySelect.addEventListener("change", () => {
-      populateShotsForFamily(familySelect.value);
-      applyShot(getShotById(shotSelect.value));
+    graphicSelect.addEventListener("change", () => {
+      applyGraphic(getSelectedGraphic());
     });
 
-    shotSelect.addEventListener("change", () => {
-      applyShot(getShotById(shotSelect.value));
+    randomMotionBtn.addEventListener("click", () => {
+      const motionIndexes = GRAPHICS
+        .map((g, index) => ({ g, index }))
+        .filter(item => item.g.type === "motion");
+      const pick = motionIndexes[Math.floor(Math.random() * motionIndexes.length)];
+      graphicSelect.value = String(pick.index);
+      applyGraphic(pick.g);
     });
 
-    tableSelect.addEventListener("change", resolveAssets);
-
-    applyShotBtn.addEventListener("click", () => {
-      applyShot(getShotById(shotSelect.value));
+    randomGraphicBtn.addEventListener("click", () => {
+      const index = Math.floor(Math.random() * GRAPHICS.length);
+      graphicSelect.value = String(index);
+      applyGraphic(GRAPHICS[index]);
     });
 
-    randomShotBtn.addEventListener("click", () => {
-      const pool = SHOTS.filter(s => s.id !== "faceoff");
-      const random = pool[Math.floor(Math.random() * pool.length)];
-      familySelect.value = random.family;
-      populateShotsForFamily(random.family);
-      shotSelect.value = random.id;
-      applyShot(random);
-    });
-
-    faceoffBtn.addEventListener("click", () => {
-      const faceoff = getShotById("faceoff");
-      familySelect.value = faceoff.family;
-      populateShotsForFamily(faceoff.family);
-      shotSelect.value = faceoff.id;
-      applyShot(faceoff);
-    });
-
-    diagramBtn.addEventListener("click", openDiagram);
-    closeDiagramBtn.addEventListener("click", closeDiagram);
-    openDiagramTabBtn.addEventListener("click", openDiagramInTab);
+    viewGraphicBtn.addEventListener("click", openViewer);
+    closeViewerBtn.addEventListener("click", closeViewer);
+    openGraphicTabBtn.addEventListener("click", openGraphicInTab);
 
     whiteboardBtn.addEventListener("click", openWhiteboard);
     closeWhiteboardBtn.addEventListener("click", closeWhiteboard);
@@ -1077,7 +1036,7 @@
     window.addEventListener("keydown", (e) => {
       if (e.key !== "Escape") return;
       if (whiteboardModal.classList.contains("active")) closeWhiteboard();
-      if (diagramModal.classList.contains("active")) closeDiagram();
+      if (viewerModal.classList.contains("active")) closeViewer();
     });
 
     init();

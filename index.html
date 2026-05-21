@@ -234,8 +234,7 @@
       font-size: 0.85rem;
     }
 
-    button,
-    .button-link {
+    button {
       border-radius: 999px;
       border: none;
       padding: 7px 14px;
@@ -254,8 +253,7 @@
       text-decoration: none;
     }
 
-    button:active,
-    .button-link:active {
+    button:active {
       transform: translateY(1px);
       box-shadow: 0 2px 8px rgba(0, 224, 255, 0.25);
     }
@@ -397,27 +395,13 @@
       justify-content: center;
     }
 
-    .diagram-layer {
+    .base-image {
       position: absolute;
       inset: 0;
       width: 100%;
       height: 100%;
       object-fit: contain;
       background: #071018;
-    }
-
-    .shot-layer {
-      position: absolute;
-      inset: 0;
-      width: 100%;
-      height: 100%;
-      object-fit: contain;
-      pointer-events: none;
-      mix-blend-mode: normal;
-    }
-
-    .shot-layer.hide {
-      display: none;
     }
 
     #whiteboardCanvas {
@@ -481,7 +465,7 @@
   <div class="app">
     <header>
       <h1>One Puck Shot Trainer</h1>
-      <p>Pick a shot, pick a table graphic, view the motion layer, or draw on it in whiteboard mode.</p>
+      <p>Shot diagrams for learning. Table whiteboards for coaching. Clean and separate.</p>
     </header>
 
     <div class="layout">
@@ -501,7 +485,7 @@
 
       <aside class="controls-panel">
         <h2>Shot Selector</h2>
-        <p>Use table graphics from <strong>graphics</strong> and motion graphics from <strong>graphics/shots</strong>.</p>
+        <p>View a shot diagram, or open a blank table whiteboard.</p>
 
         <div class="field-row">
           <label for="familySelect">Shot family</label>
@@ -514,13 +498,8 @@
         </div>
 
         <div class="field-row">
-          <label for="tableSelect">Table graphic</label>
+          <label for="tableSelect">Whiteboard table graphic</label>
           <select id="tableSelect"></select>
-        </div>
-
-        <div class="field-row">
-          <label for="motionSelect">Motion overlay</label>
-          <select id="motionSelect"></select>
         </div>
 
         <div class="buttons-row">
@@ -530,8 +509,8 @@
         </div>
 
         <div class="diagram-actions">
-          <button id="diagramBtn" class="secondary-btn" type="button">📐 View Diagram</button>
-          <button id="whiteboardBtn" type="button">✏️ Whiteboard</button>
+          <button id="diagramBtn" class="secondary-btn" type="button">📐 View Shot Diagram</button>
+          <button id="whiteboardBtn" type="button">✏️ Table Whiteboard</button>
         </div>
 
         <div class="shot-meta" id="shotMeta"></div>
@@ -543,37 +522,33 @@
 
   <div id="diagramModal" class="modal" aria-hidden="true">
     <div class="modal-toolbar">
-      <div id="diagramTitle" class="modal-title">Diagram</div>
-      <button id="openTableTabBtn" class="modal-tool" type="button">Open Table</button>
-      <button id="openMotionTabBtn" class="modal-tool" type="button">Open Motion</button>
+      <div id="diagramTitle" class="modal-title">Shot Diagram</div>
+      <button id="openDiagramTabBtn" class="modal-tool" type="button">Open Image</button>
       <button id="closeDiagramBtn" class="modal-tool" type="button">Close</button>
     </div>
     <div class="modal-stage">
-      <img id="diagramTableImage" class="diagram-layer" alt="Table graphic" />
-      <img id="diagramMotionImage" class="shot-layer" alt="Shot motion overlay" />
+      <img id="diagramImage" class="base-image" alt="Shot diagram" />
       <div id="diagramMissing" class="missing-image" style="display:none;"></div>
-      <div class="modal-hint">Table plus shot motion overlay. Press Esc to close.</div>
+      <div class="modal-hint">Shot diagram only. Press Esc to close.</div>
     </div>
   </div>
 
   <div id="whiteboardModal" class="modal" aria-hidden="true">
     <div class="modal-toolbar">
-      <div id="whiteboardTitle" class="modal-title">Whiteboard</div>
+      <div id="whiteboardTitle" class="modal-title">Table Whiteboard</div>
       <button id="penToolBtn" class="modal-tool active" type="button">Pen</button>
       <button id="eraserToolBtn" class="modal-tool" type="button">Erase</button>
       <input id="whiteboardColor" class="whiteboard-color" type="color" value="#00e0ff" aria-label="Pen color" />
       <input id="whiteboardSize" class="whiteboard-size" type="range" min="2" max="30" value="5" aria-label="Pen size" />
-      <button id="toggleMotionBtn" class="modal-tool active" type="button">Motion On</button>
       <button id="saveWhiteboardBtn" class="modal-tool save" type="button">Save PNG</button>
       <button id="clearWhiteboardBtn" class="modal-tool danger" type="button">Clear</button>
       <button id="closeWhiteboardBtn" class="modal-tool" type="button">Close</button>
     </div>
     <div class="modal-stage">
-      <img id="whiteboardTableImage" class="diagram-layer" alt="Whiteboard table graphic" />
-      <img id="whiteboardMotionImage" class="shot-layer" alt="Whiteboard shot motion overlay" />
+      <img id="whiteboardTableImage" class="base-image" alt="Whiteboard table graphic" />
       <canvas id="whiteboardCanvas"></canvas>
       <div id="whiteboardMissing" class="missing-image" style="display:none;"></div>
-      <div class="modal-hint">Draw on the selected table and motion layer. Save PNG exports table, current motion frame, and marks.</div>
+      <div class="modal-hint">Table graphic only. Draw your own coaching notes.</div>
     </div>
   </div>
 
@@ -627,12 +602,7 @@
       { id: "photo-7926", label: "Photo Table 7926", file: "7926_8.jpg" },
       { id: "photo-screenshot", label: "Photo Screenshot Table", file: "Screen-Shot-2019-02-07-at-10.24.35-AM.png" },
       { id: "wallpaper", label: "Wallpaper", file: "wallpaper.png" },
-      { id: "wallpaper2", label: "Wallpaper 2", file: "wallpaper2.png" },
-      { id: "dynamo-parts", label: "Dynamo Parts Reference", file: "dynamoparts.png" },
-      { id: "gsg-logo-lightblue", label: "GSG Logo Light Blue", file: "gsg-logolightblue.png" },
-      { id: "mallet", label: "Mallet Reference", file: "Mallet.png" },
-      { id: "red-puck", label: "Red Puck Reference", file: "Red-Puck.png" },
-      { id: "yellow-puck", label: "Yellow Puck Reference", file: "Yellow-Puck.png" }
+      { id: "wallpaper2", label: "Wallpaper 2", file: "wallpaper2.png" }
     ];
 
     const FAMILY_COLORS = {
@@ -650,26 +620,26 @@
     };
 
     const SHOTS = [
-      { id: "faceoff", family: "Faceoff", name: "Starting Position", variant: "Both players centered", note: "Puck in the middle. Mallet on the back line. Eyes up.", side: "Neutral", path: "Center", motion: "", altMotion: "", tags: ["setup", "reset"] },
-      { id: "basic-point", family: "Basic Point", name: "One Point", variant: "Straight finish", note: "Clean, simple, straight. The foundation for everything else.", side: "Center", path: "Straight", motion: "motioncross.gif", altMotion: "motioncrossLR.gif", tags: ["fundamentals"] },
-      { id: "cross-straight-lr", family: "Cross", name: "Cross Straight", variant: "Right hand, left to right", note: "Classic cross. Start left, drive through center, finish on the right corner.", side: "Left to Right", path: "Straight", motion: "motioncrossLR.gif", altMotion: "motioncross.gif", tags: ["offense"] },
-      { id: "cross-straight-rl", family: "Cross", name: "Cross Straight", variant: "Right hand, right to left", note: "Mirror image. Same motion, other side.", side: "Right to Left", path: "Straight", motion: "motioncross.gif", altMotion: "motioncrossLR.gif", tags: ["offense"] },
-      { id: "reverse-cross-lr", family: "Cross", name: "Reverse Cross", variant: "Right hand, left to right", note: "Reverse takeoff, same lane. Great changeup when they read your regular cross.", side: "Left to Right", path: "Reverse", motion: "motioncrossLRREV.gif", altMotion: "motioncrossREV.gif", tags: ["offense", "trick"] },
-      { id: "reverse-cross-rl", family: "Cross", name: "Reverse Cross", variant: "Right hand, right to left", note: "Reverse motion to the opposite side. Sell the straight, send it across.", side: "Right to Left", path: "Reverse", motion: "motioncrossREV.gif", altMotion: "motioncrossLRREV.gif", tags: ["offense", "trick"] },
-      { id: "cut-bottom", family: "Cut", name: "Cut Straight Bottom", variant: "Right hand", note: "Drive through the bottom lane. Fast, direct, hard to read if your setup is honest.", side: "Bottom", path: "Straight", motion: "motioncutstraightbottom.gif", altMotion: "motioncutstraightbottomLR.gif", tags: ["offense"] },
-      { id: "cut-top", family: "Cut", name: "Cut Straight Top", variant: "Right hand", note: "Same idea, top lane. Pairs well with bottom and cross to create a three point threat.", side: "Top", path: "Straight", motion: "motioncutstraighttop.gif", altMotion: "motioncutstraighttopLR.gif", tags: ["offense"] },
-      { id: "def-straight-basic", family: "Defense Straight", name: "Center Block", variant: "Back and forth defense", note: "Track the line, not the mallet. Glide through the straight lanes instead of chasing.", side: "Center", path: "Straight", motion: "DEFstraights.gif", altMotion: "", tags: ["defense"] },
-      { id: "rwu", family: "Right Wall", name: "Right Wall Under", variant: "Right hand", note: "Off the right wall, under the mallet, into the goal. Bread and butter wall shot.", side: "Right", path: "Under", motion: "motionRWU.gif", altMotion: "motionRWULR.gif", tags: ["offense", "wall"] },
-      { id: "rwo", family: "Right Wall", name: "Right Wall Over", variant: "Right hand", note: "Same lane start as RWU, but this one lifts over the expected block.", side: "Right", path: "Over", motion: "motionRWO.gif", altMotion: "motionRWOLR.gif", tags: ["offense", "wall"] },
-      { id: "lwu", family: "Left Wall", name: "Left Wall Under", variant: "Right hand", note: "Mirror of RWU on the left side. Great for players who overplay your right wall.", side: "Left", path: "Under", motion: "motionLWU.gif", altMotion: "motionLWULR.gif", tags: ["offense", "wall"] },
-      { id: "lwo", family: "Left Wall", name: "Left Wall Over", variant: "Right hand", note: "Same start as LWU, but float it over the block for a nasty surprise.", side: "Left", path: "Over", motion: "motionLWO.gif", altMotion: "motionLWOLR.gif", tags: ["offense", "wall"] },
-      { id: "def-wall-triangle", family: "Defense Wall", name: "Triangle Defense", variant: "Wall shot coverage", note: "Rotate through three spots that shut down wall under, over, and basic crosses.", side: "Both walls", path: "Triangle pattern", motion: "DEFwalls.gif", altMotion: "", tags: ["defense", "wall"] },
-      { id: "double-bank-rwlw", family: "Double Bank", name: "Right to Left Double Bank", variant: "RWLW", note: "Right wall, left wall, then home. Fancy, but powerful when sold off a normal wall game.", side: "Right and Left walls", path: "RWLW", motion: "motiondoublebankRWLW.gif", altMotion: "motiondoublebankRWLWLR.gif", tags: ["trick", "bank"] },
-      { id: "double-bank-lwrw", family: "Double Bank", name: "Left to Right Double Bank", variant: "LWRW", note: "Left wall first, then right. Use it as a once a game surprise.", side: "Left and Right walls", path: "LWRW", motion: "motiondoublebankLWRW.gif", altMotion: "motiondoublebankLWRWLR.gif", tags: ["trick", "bank"] },
-      { id: "triple-bank-rw", family: "Triple Bank", name: "Triple Bank Right", variant: "Right heavy pattern", note: "High flair, high risk. Know the lanes cold before you whip this out.", side: "Right", path: "Triple bank", motion: "triplebankRW.gif", altMotion: "triplebankRWLR.gif", tags: ["trick", "bank"] },
-      { id: "triple-bank-lw", family: "Triple Bank", name: "Triple Bank Left", variant: "Left heavy pattern", note: "Same energy, mirrored path. Practice both so you are not a one side wonder.", side: "Left", path: "Triple bank", motion: "triplebankLW.gif", altMotion: "triplebankLWLR.gif", tags: ["trick", "bank"] },
-      { id: "turkey-rw", family: "Turkey Shot", name: "Turkey Shot Right", variant: "Right wall pattern", note: "Think of it as a wall shot that gobbles up bad defense three times in a row.", side: "Right", path: "Turkey pattern", motion: "turkeyshotREVtoRW.gif", altMotion: "turkeyshotREVtoRW2.gif", tags: ["offense", "special"] },
-      { id: "turkey-lw", family: "Turkey Shot", name: "Turkey Shot Left", variant: "Left wall pattern", note: "Mirror on the left. Extra gravy if you pair it with clean straight threats.", side: "Left", path: "Turkey pattern", motion: "turkeyshotREVtoLW.gif", altMotion: "turkeyshotREVtoLW2.gif", tags: ["offense", "special"] }
+      { id: "faceoff", family: "Faceoff", name: "Starting Position", variant: "Both players centered", note: "Puck in the middle. Mallet on the back line. Eyes up.", side: "Neutral", path: "Center", diagram: "", tags: ["setup", "reset"] },
+      { id: "basic-point", family: "Basic Point", name: "One Point", variant: "Straight finish", note: "Clean, simple, straight. The foundation for everything else.", side: "Center", path: "Straight", diagram: "motioncross.gif", tags: ["fundamentals"] },
+      { id: "cross-straight-lr", family: "Cross", name: "Cross Straight", variant: "Right hand, left to right", note: "Classic cross. Start left, drive through center, finish on the right corner.", side: "Left to Right", path: "Straight", diagram: "motioncrossLR.gif", tags: ["offense"] },
+      { id: "cross-straight-rl", family: "Cross", name: "Cross Straight", variant: "Right hand, right to left", note: "Mirror image. Same motion, other side.", side: "Right to Left", path: "Straight", diagram: "motioncross.gif", tags: ["offense"] },
+      { id: "reverse-cross-lr", family: "Cross", name: "Reverse Cross", variant: "Right hand, left to right", note: "Reverse takeoff, same lane. Great changeup when they read your regular cross.", side: "Left to Right", path: "Reverse", diagram: "motioncrossLRREV.gif", tags: ["offense", "trick"] },
+      { id: "reverse-cross-rl", family: "Cross", name: "Reverse Cross", variant: "Right hand, right to left", note: "Reverse motion to the opposite side. Sell the straight, send it across.", side: "Right to Left", path: "Reverse", diagram: "motioncrossREV.gif", tags: ["offense", "trick"] },
+      { id: "cut-bottom", family: "Cut", name: "Cut Straight Bottom", variant: "Right hand", note: "Drive through the bottom lane. Fast, direct, hard to read if your setup is honest.", side: "Bottom", path: "Straight", diagram: "motioncutstraightbottom.gif", tags: ["offense"] },
+      { id: "cut-top", family: "Cut", name: "Cut Straight Top", variant: "Right hand", note: "Same idea, top lane. Pairs well with bottom and cross to create a three point threat.", side: "Top", path: "Straight", diagram: "motioncutstraighttop.gif", tags: ["offense"] },
+      { id: "def-straight-basic", family: "Defense Straight", name: "Center Block", variant: "Back and forth defense", note: "Track the line, not the mallet. Glide through the straight lanes instead of chasing.", side: "Center", path: "Straight", diagram: "DEFstraights.gif", tags: ["defense"] },
+      { id: "rwu", family: "Right Wall", name: "Right Wall Under", variant: "Right hand", note: "Off the right wall, under the mallet, into the goal. Bread and butter wall shot.", side: "Right", path: "Under", diagram: "motionRWU.gif", tags: ["offense", "wall"] },
+      { id: "rwo", family: "Right Wall", name: "Right Wall Over", variant: "Right hand", note: "Same lane start as RWU, but this one lifts over the expected block.", side: "Right", path: "Over", diagram: "motionRWO.gif", tags: ["offense", "wall"] },
+      { id: "lwu", family: "Left Wall", name: "Left Wall Under", variant: "Right hand", note: "Mirror of RWU on the left side. Great for players who overplay your right wall.", side: "Left", path: "Under", diagram: "motionLWU.gif", tags: ["offense", "wall"] },
+      { id: "lwo", family: "Left Wall", name: "Left Wall Over", variant: "Right hand", note: "Same start as LWU, but float it over the block for a nasty surprise.", side: "Left", path: "Over", diagram: "motionLWO.gif", tags: ["offense", "wall"] },
+      { id: "def-wall-triangle", family: "Defense Wall", name: "Triangle Defense", variant: "Wall shot coverage", note: "Rotate through three spots that shut down wall under, over, and basic crosses.", side: "Both walls", path: "Triangle pattern", diagram: "DEFwalls.gif", tags: ["defense", "wall"] },
+      { id: "double-bank-rwlw", family: "Double Bank", name: "Right to Left Double Bank", variant: "RWLW", note: "Right wall, left wall, then home. Fancy, but powerful when sold off a normal wall game.", side: "Right and Left walls", path: "RWLW", diagram: "motiondoublebankRWLW.gif", tags: ["trick", "bank"] },
+      { id: "double-bank-lwrw", family: "Double Bank", name: "Left to Right Double Bank", variant: "LWRW", note: "Left wall first, then right. Use it as a once a game surprise.", side: "Left and Right walls", path: "LWRW", diagram: "motiondoublebankLWRW.gif", tags: ["trick", "bank"] },
+      { id: "triple-bank-rw", family: "Triple Bank", name: "Triple Bank Right", variant: "Right heavy pattern", note: "High flair, high risk. Know the lanes cold before you whip this out.", side: "Right", path: "Triple bank", diagram: "triplebankRW.gif", tags: ["trick", "bank"] },
+      { id: "triple-bank-lw", family: "Triple Bank", name: "Triple Bank Left", variant: "Left heavy pattern", note: "Same energy, mirrored path. Practice both so you are not a one side wonder.", side: "Left", path: "Triple bank", diagram: "triplebankLW.gif", tags: ["trick", "bank"] },
+      { id: "turkey-rw", family: "Turkey Shot", name: "Turkey Shot Right", variant: "Right wall pattern", note: "Think of it as a wall shot that gobbles up bad defense three times in a row.", side: "Right", path: "Turkey pattern", diagram: "turkeyshotREVtoRW.gif", tags: ["offense", "special"] },
+      { id: "turkey-lw", family: "Turkey Shot", name: "Turkey Shot Left", variant: "Left wall pattern", note: "Mirror on the left. Extra gravy if you pair it with clean straight threats.", side: "Left", path: "Turkey pattern", diagram: "turkeyshotREVtoLW.gif", tags: ["offense", "special"] }
     ];
 
     const families = Array.from(new Set(SHOTS.map(s => s.family)));
@@ -677,7 +647,6 @@
     const familySelect = document.getElementById("familySelect");
     const shotSelect = document.getElementById("shotSelect");
     const tableSelect = document.getElementById("tableSelect");
-    const motionSelect = document.getElementById("motionSelect");
     const puck = document.getElementById("puck");
     const shotFamilyPill = document.getElementById("shotFamilyPill");
     const shotNameEl = document.getElementById("shotName");
@@ -694,37 +663,31 @@
 
     const diagramModal = document.getElementById("diagramModal");
     const diagramTitle = document.getElementById("diagramTitle");
-    const diagramTableImage = document.getElementById("diagramTableImage");
-    const diagramMotionImage = document.getElementById("diagramMotionImage");
+    const diagramImage = document.getElementById("diagramImage");
     const diagramMissing = document.getElementById("diagramMissing");
-    const openTableTabBtn = document.getElementById("openTableTabBtn");
-    const openMotionTabBtn = document.getElementById("openMotionTabBtn");
+    const openDiagramTabBtn = document.getElementById("openDiagramTabBtn");
     const closeDiagramBtn = document.getElementById("closeDiagramBtn");
 
     const whiteboardModal = document.getElementById("whiteboardModal");
     const whiteboardTitle = document.getElementById("whiteboardTitle");
     const whiteboardTableImage = document.getElementById("whiteboardTableImage");
-    const whiteboardMotionImage = document.getElementById("whiteboardMotionImage");
     const whiteboardCanvas = document.getElementById("whiteboardCanvas");
     const whiteboardMissing = document.getElementById("whiteboardMissing");
     const penToolBtn = document.getElementById("penToolBtn");
     const eraserToolBtn = document.getElementById("eraserToolBtn");
     const whiteboardColor = document.getElementById("whiteboardColor");
     const whiteboardSize = document.getElementById("whiteboardSize");
-    const toggleMotionBtn = document.getElementById("toggleMotionBtn");
     const saveWhiteboardBtn = document.getElementById("saveWhiteboardBtn");
     const clearWhiteboardBtn = document.getElementById("clearWhiteboardBtn");
     const closeWhiteboardBtn = document.getElementById("closeWhiteboardBtn");
 
     let currentShot = null;
-    let currentTable = null;
+    let currentDiagramSrc = "";
     let currentTableSrc = "";
-    let currentMotionSrc = "";
+    let diagramExists = false;
     let tableExists = false;
-    let motionExists = false;
     let drawing = false;
     let whiteboardTool = "pen";
-    let motionVisible = true;
     let lastX = 0;
     let lastY = 0;
 
@@ -733,12 +696,18 @@
       return `radial-gradient(circle at 30% 20%, #ffffff 0, #f3f3f3 14%, ${color} 55%, ${dark} 92%)`;
     }
 
-    function tablePath(table) {
+    function shotDiagramPath(shot) {
+      return shot && shot.diagram ? `${SHOT_GRAPHICS_DIR}/${shot.diagram}` : "";
+    }
+
+    function tablePath() {
+      const table = TABLE_GRAPHICS.find(t => t.id === tableSelect.value) || TABLE_GRAPHICS[0];
       return `${GENERAL_GRAPHICS_DIR}/${table.file}`;
     }
 
-    function motionPath(file) {
-      return file ? `${SHOT_GRAPHICS_DIR}/${file}` : "";
+    function currentTableLabel() {
+      const table = TABLE_GRAPHICS.find(t => t.id === tableSelect.value) || TABLE_GRAPHICS[0];
+      return table.label;
     }
 
     function testImage(src) {
@@ -752,6 +721,25 @@
         img.onerror = () => resolve(null);
         img.src = src;
       });
+    }
+
+    async function resolveAssets() {
+      currentDiagramSrc = shotDiagramPath(currentShot);
+      currentTableSrc = tablePath();
+      diagramExists = Boolean(await testImage(currentDiagramSrc));
+      tableExists = Boolean(await testImage(currentTableSrc));
+
+      const diagramLine = currentDiagramSrc
+        ? diagramExists
+          ? `Shot diagram loaded:<br><strong>${currentDiagramSrc}</strong>`
+          : `Shot diagram missing:<br><strong>${currentDiagramSrc}</strong>`
+        : "Shot diagram: none for this item";
+
+      const tableLine = tableExists
+        ? `Whiteboard table loaded:<br><strong>${currentTableSrc}</strong>`
+        : `Whiteboard table missing:<br><strong>${currentTableSrc}</strong>`;
+
+      localStatus.innerHTML = `${diagramLine}<br><br>${tableLine}`;
     }
 
     function populateFamilies() {
@@ -784,58 +772,8 @@
       });
     }
 
-    function populateMotionOptions(shot) {
-      motionSelect.innerHTML = "";
-
-      const none = document.createElement("option");
-      none.value = "";
-      none.textContent = "No motion overlay";
-      motionSelect.appendChild(none);
-
-      if (shot.motion) {
-        const main = document.createElement("option");
-        main.value = shot.motion;
-        main.textContent = `Main motion • ${shot.motion}`;
-        motionSelect.appendChild(main);
-      }
-
-      if (shot.altMotion) {
-        const alt = document.createElement("option");
-        alt.value = shot.altMotion;
-        alt.textContent = `Alt motion • ${shot.altMotion}`;
-        motionSelect.appendChild(alt);
-      }
-
-      motionSelect.value = shot.motion || "";
-    }
-
     function getShotById(id) {
       return SHOTS.find(s => s.id === id) || SHOTS[0];
-    }
-
-    function getTableById(id) {
-      return TABLE_GRAPHICS.find(t => t.id === id) || TABLE_GRAPHICS[0];
-    }
-
-    async function resolveAssets() {
-      currentTable = getTableById(tableSelect.value);
-      currentTableSrc = tablePath(currentTable);
-      currentMotionSrc = motionPath(motionSelect.value);
-
-      tableExists = Boolean(await testImage(currentTableSrc));
-      motionExists = Boolean(await testImage(currentMotionSrc));
-
-      const tableLine = tableExists
-        ? `Table loaded:<br><strong>${currentTableSrc}</strong>`
-        : `Table missing:<br><strong>${currentTableSrc}</strong>`;
-
-      const motionLine = currentMotionSrc
-        ? motionExists
-          ? `Motion loaded:<br><strong>${currentMotionSrc}</strong>`
-          : `Motion missing:<br><strong>${currentMotionSrc}</strong>`
-        : "Motion overlay: none";
-
-      localStatus.innerHTML = `${tableLine}<br><br>${motionLine}`;
     }
 
     function applyShot(shot) {
@@ -863,7 +801,6 @@
         });
       }
 
-      populateMotionOptions(shot);
       resolveAssets();
 
       puck.classList.remove("glow");
@@ -872,37 +809,13 @@
     }
 
     function shotDisplayTitle() {
-      if (!currentShot) return "Diagram";
-      const table = getTableById(tableSelect.value);
-      return `${currentShot.name}${currentShot.variant ? " • " + currentShot.variant : ""} • ${table.label}`;
+      if (!currentShot) return "Shot Diagram";
+      return `${currentShot.name}${currentShot.variant ? " • " + currentShot.variant : ""}`;
     }
 
-    function showMissing(el, context) {
+    function showMissing(el, message) {
       el.style.display = "block";
-      el.innerHTML = `<strong>Graphic missing.</strong><br>${context}<br><br>Check capitalization and spaces exactly. GitHub Pages paths are case sensitive.`;
-    }
-
-    function loadModalImages(tableImg, motionImg, missingEl) {
-      missingEl.style.display = "none";
-
-      if (tableExists && currentTableSrc) {
-        tableImg.style.display = "block";
-        tableImg.src = currentTableSrc;
-      } else {
-        tableImg.style.display = "none";
-        tableImg.removeAttribute("src");
-        showMissing(missingEl, `Could not load table image:<br><strong>${currentTableSrc}</strong>`);
-      }
-
-      if (motionExists && currentMotionSrc && motionVisible) {
-        motionImg.style.display = "block";
-        motionImg.classList.remove("hide");
-        motionImg.src = currentMotionSrc;
-      } else {
-        motionImg.style.display = "none";
-        motionImg.classList.add("hide");
-        motionImg.removeAttribute("src");
-      }
+      el.innerHTML = `<strong>Graphic missing.</strong><br>${message}<br><br>GitHub Pages paths are case sensitive.`;
     }
 
     async function openDiagram() {
@@ -911,7 +824,16 @@
       diagramModal.classList.add("active");
       diagramModal.setAttribute("aria-hidden", "false");
       document.body.style.overflow = "hidden";
-      loadModalImages(diagramTableImage, diagramMotionImage, diagramMissing);
+
+      if (diagramExists && currentDiagramSrc) {
+        diagramMissing.style.display = "none";
+        diagramImage.style.display = "block";
+        diagramImage.src = currentDiagramSrc;
+      } else {
+        diagramImage.style.display = "none";
+        diagramImage.removeAttribute("src");
+        showMissing(diagramMissing, currentDiagramSrc ? `Could not load:<br><strong>${currentDiagramSrc}</strong>` : "No shot diagram assigned to this item.");
+      }
     }
 
     function closeDiagram() {
@@ -1008,11 +930,21 @@
 
     async function openWhiteboard() {
       await resolveAssets();
-      whiteboardTitle.textContent = shotDisplayTitle();
+      whiteboardTitle.textContent = `Table Whiteboard • ${currentTableLabel()}`;
       whiteboardModal.classList.add("active");
       whiteboardModal.setAttribute("aria-hidden", "false");
       document.body.style.overflow = "hidden";
-      loadModalImages(whiteboardTableImage, whiteboardMotionImage, whiteboardMissing);
+
+      if (tableExists && currentTableSrc) {
+        whiteboardMissing.style.display = "none";
+        whiteboardTableImage.style.display = "block";
+        whiteboardTableImage.src = currentTableSrc;
+      } else {
+        whiteboardTableImage.style.display = "none";
+        whiteboardTableImage.removeAttribute("src");
+        showMissing(whiteboardMissing, `Could not load:<br><strong>${currentTableSrc}</strong>`);
+      }
+
       setTimeout(() => {
         resizeWhiteboardCanvas();
         clearWhiteboard();
@@ -1024,13 +956,6 @@
       whiteboardModal.setAttribute("aria-hidden", "true");
       document.body.style.overflow = "";
       drawing = false;
-    }
-
-    function toggleMotionVisibility() {
-      motionVisible = !motionVisible;
-      toggleMotionBtn.classList.toggle("active", motionVisible);
-      toggleMotionBtn.textContent = motionVisible ? "Motion On" : "Motion Off";
-      loadModalImages(whiteboardTableImage, whiteboardMotionImage, whiteboardMissing);
     }
 
     function drawImageContain(ctx, img, x, y, w, h) {
@@ -1069,26 +994,17 @@
         drawImageContain(exportCtx, whiteboardTableImage, 0, 0, width, height);
       }
 
-      if (motionVisible && motionExists && whiteboardMotionImage.complete) {
-        drawImageContain(exportCtx, whiteboardMotionImage, 0, 0, width, height);
-      }
-
       exportCtx.drawImage(whiteboardCanvas, 0, 0, width, height);
 
+      const table = TABLE_GRAPHICS.find(t => t.id === tableSelect.value) || TABLE_GRAPHICS[0];
       const link = document.createElement("a");
-      const shotName = currentShot ? currentShot.id : "shot";
-      const tableName = currentTable ? currentTable.id : "table";
-      link.download = `${shotName}-${tableName}-whiteboard.png`;
+      link.download = `${table.id}-whiteboard.png`;
       link.href = exportCanvas.toDataURL("image/png");
       link.click();
     }
 
-    function openTableInTab() {
-      if (currentTableSrc) window.open(currentTableSrc, "_blank", "noopener");
-    }
-
-    function openMotionInTab() {
-      if (currentMotionSrc) window.open(currentMotionSrc, "_blank", "noopener");
+    function openDiagramInTab() {
+      if (currentDiagramSrc) window.open(currentDiagramSrc, "_blank", "noopener");
     }
 
     function init() {
@@ -1111,7 +1027,6 @@
     });
 
     tableSelect.addEventListener("change", resolveAssets);
-    motionSelect.addEventListener("change", resolveAssets);
 
     applyShotBtn.addEventListener("click", () => {
       applyShot(getShotById(shotSelect.value));
@@ -1136,14 +1051,12 @@
 
     diagramBtn.addEventListener("click", openDiagram);
     closeDiagramBtn.addEventListener("click", closeDiagram);
-    openTableTabBtn.addEventListener("click", openTableInTab);
-    openMotionTabBtn.addEventListener("click", openMotionInTab);
+    openDiagramTabBtn.addEventListener("click", openDiagramInTab);
 
     whiteboardBtn.addEventListener("click", openWhiteboard);
     closeWhiteboardBtn.addEventListener("click", closeWhiteboard);
     clearWhiteboardBtn.addEventListener("click", clearWhiteboard);
     saveWhiteboardBtn.addEventListener("click", saveWhiteboardPng);
-    toggleMotionBtn.addEventListener("click", toggleMotionVisibility);
 
     penToolBtn.addEventListener("click", () => setWhiteboardTool("pen"));
     eraserToolBtn.addEventListener("click", () => setWhiteboardTool("eraser"));

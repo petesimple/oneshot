@@ -5,9 +5,10 @@
   <title>One Puck Shot Trainer</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <link rel="icon" href="icons/oneshot-192.png" />
-<link rel="apple-touch-icon" href="icons/oneshot-192.png" />
-<link rel="manifest" href="manifest.json" />
-<meta name="theme-color" content="#05070b" />
+  <link rel="apple-touch-icon" href="icons/oneshot-192.png" />
+  <link rel="manifest" href="manifest.json" />
+  <meta name="theme-color" content="#05070b" />
+
   <style>
     :root {
       --bg: #05070b;
@@ -15,15 +16,21 @@
       --accent: #00e0ff;
       --text-main: #f5f5f5;
       --text-muted: #aaaaaa;
+      --danger: #ff4d5f;
     }
 
     * {
       box-sizing: border-box;
     }
 
+    html,
     body {
       margin: 0;
       padding: 0;
+      min-height: 100%;
+    }
+
+    body {
       font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
       background: radial-gradient(circle at top, #1a2340 0, #05070b 55%, #000 100%);
       color: var(--text-main);
@@ -79,6 +86,7 @@
       box-shadow: 0 0 24px rgba(0, 0, 0, 0.7);
       position: relative;
       overflow: hidden;
+      min-height: 380px;
     }
 
     .center-line {
@@ -253,6 +261,14 @@
       margin-bottom: 10px;
     }
 
+    .diagram-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 8px;
+      margin-bottom: 8px;
+    }
+
     .diagram-link {
       display: inline-flex;
       align-items: center;
@@ -267,6 +283,24 @@
 
     .diagram-link:hover {
       background: rgba(0, 224, 255, 0.08);
+    }
+
+    .whiteboard-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.8rem;
+      color: #020308;
+      background: var(--accent);
+      text-decoration: none;
+      padding: 5px 10px;
+      border-radius: 999px;
+      border: 1px solid rgba(0, 224, 255, 0.3);
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      cursor: pointer;
+      box-shadow: 0 4px 12px rgba(0, 224, 255, 0.28);
     }
 
     .shot-meta {
@@ -291,6 +325,140 @@
       margin-right: 4px;
       margin-top: 4px;
     }
+
+    .whiteboard-modal {
+      position: fixed;
+      inset: 0;
+      z-index: 9999;
+      background: rgba(0, 0, 0, 0.94);
+      display: none;
+      flex-direction: column;
+      padding: 10px;
+    }
+
+    .whiteboard-modal.active {
+      display: flex;
+    }
+
+    .whiteboard-toolbar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      align-items: center;
+      justify-content: center;
+      padding: 8px;
+      background: #111722;
+      border-radius: 14px;
+      margin-bottom: 8px;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+    }
+
+    .whiteboard-title {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      margin-right: 8px;
+      max-width: 100%;
+      text-align: center;
+    }
+
+    .whiteboard-tool {
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,0.16);
+      padding: 7px 12px;
+      background: #080b13;
+      color: var(--text-main);
+      box-shadow: none;
+    }
+
+    .whiteboard-tool.active {
+      background: var(--accent);
+      color: #020308;
+    }
+
+    .whiteboard-tool.danger {
+      background: var(--danger);
+      color: #fff;
+    }
+
+    .whiteboard-color {
+      width: 34px;
+      height: 34px;
+      padding: 0;
+      border-radius: 50%;
+      border: 2px solid rgba(255,255,255,0.45);
+      overflow: hidden;
+      background: transparent;
+      cursor: pointer;
+    }
+
+    .whiteboard-size {
+      width: 110px;
+      accent-color: var(--accent);
+    }
+
+    .whiteboard-stage {
+      position: relative;
+      flex: 1;
+      min-height: 0;
+      border-radius: 18px;
+      overflow: hidden;
+      background: #05070b;
+      border: 1px solid rgba(255,255,255,0.12);
+    }
+
+    #whiteboardFrame {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      border: 0;
+      background: #fff;
+    }
+
+    #whiteboardCanvas {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      touch-action: none;
+      cursor: crosshair;
+    }
+
+    .whiteboard-hint {
+      position: absolute;
+      left: 12px;
+      bottom: 12px;
+      z-index: 2;
+      padding: 6px 10px;
+      border-radius: 999px;
+      background: rgba(0, 0, 0, 0.58);
+      color: rgba(255, 255, 255, 0.78);
+      font-size: 0.75rem;
+      pointer-events: none;
+    }
+
+    @media (max-width: 720px) {
+      .puck-stage {
+        min-height: 320px;
+      }
+
+      .whiteboard-modal {
+        padding: 6px;
+      }
+
+      .whiteboard-toolbar {
+        justify-content: flex-start;
+        overflow-x: auto;
+      }
+
+      .whiteboard-title {
+        width: 100%;
+        margin-right: 0;
+        text-align: left;
+      }
+    }
   </style>
 </head>
 <body>
@@ -301,7 +469,6 @@
     </header>
 
     <div class="layout">
-      <!-- Left: Puck -->
       <section class="puck-stage">
         <div class="center-line"></div>
         <div class="faceoff-circle"></div>
@@ -316,7 +483,6 @@
         </div>
       </section>
 
-      <!-- Right: Controls -->
       <aside class="controls-panel">
         <h2>Shot Selector</h2>
         <p>Pick a family and shot, or let the puck decide for you.</p>
@@ -332,24 +498,49 @@
         </div>
 
         <div class="buttons-row">
-          <button id="applyShotBtn">Load Shot</button>
-          <button id="randomShotBtn">Random Shot</button>
-          <button id="faceoffBtn">Faceoff</button>
+          <button id="applyShotBtn" type="button">Load Shot</button>
+          <button id="randomShotBtn" type="button">Random Shot</button>
+          <button id="faceoffBtn" type="button">Faceoff</button>
         </div>
 
-        <a id="diagramLink" class="diagram-link" href="#" target="_blank" rel="noopener" style="display:none;">
-          📐 View diagram
-        </a>
+        <div class="diagram-actions">
+          <a id="diagramLink" class="diagram-link" href="#" target="_blank" rel="noopener" style="display:none;">
+            📐 View diagram
+          </a>
+
+          <button id="whiteboardBtn" class="whiteboard-link" type="button" style="display:none;">
+            ✏️ Whiteboard
+          </button>
+        </div>
 
         <div class="shot-meta" id="shotMeta"></div>
-
         <div id="shotTags"></div>
       </aside>
     </div>
   </div>
 
+  <div id="whiteboardModal" class="whiteboard-modal" aria-hidden="true">
+    <div class="whiteboard-toolbar">
+      <div id="whiteboardTitle" class="whiteboard-title">Whiteboard</div>
+
+      <button id="penToolBtn" class="whiteboard-tool active" type="button">Pen</button>
+      <button id="eraserToolBtn" class="whiteboard-tool" type="button">Erase</button>
+
+      <input id="whiteboardColor" class="whiteboard-color" type="color" value="#00e0ff" aria-label="Pen color" />
+      <input id="whiteboardSize" class="whiteboard-size" type="range" min="2" max="28" value="5" aria-label="Pen size" />
+
+      <button id="clearWhiteboardBtn" class="whiteboard-tool danger" type="button">Clear</button>
+      <button id="closeWhiteboardBtn" class="whiteboard-tool" type="button">Close</button>
+    </div>
+
+    <div class="whiteboard-stage">
+      <iframe id="whiteboardFrame" title="Shot diagram whiteboard"></iframe>
+      <canvas id="whiteboardCanvas"></canvas>
+      <div class="whiteboard-hint">Draw over the current diagram. Press Esc to close.</div>
+    </div>
+  </div>
+
   <script>
-    // Base colors per family
     const FAMILY_COLORS = {
       "Faceoff": "#ffffff",
       "Basic Point": "#ffd54f",
@@ -364,16 +555,12 @@
       "Turkey Shot": "#ffca28"
     };
 
-    // Small helper to build a puck gradient from a family color
     function makePuckGradient(color) {
       const dark = "#050505";
       return `radial-gradient(circle at 30% 20%, #ffffff 0, #f3f3f3 14%, ${color} 55%, ${dark} 92%)`;
     }
 
-    // Shot data - sample entries wired to your links.
-    // You can expand this list with all variants following the same pattern.
     const SHOTS = [
-      // Faceoff
       {
         id: "faceoff",
         family: "Faceoff",
@@ -385,8 +572,6 @@
         diagram: "https://drive.google.com/file/d/101rYuiHaY1936pwXLpccaCXpTdaao_6c/view?usp=sharing",
         tags: ["setup", "reset"]
       },
-
-      // Basic Point
       {
         id: "basic-point",
         family: "Basic Point",
@@ -398,8 +583,6 @@
         diagram: "https://drive.google.com/file/d/11QV8jOxI8ye8d2xRoJUevFuwwaIvoPDW/view?usp=sharing",
         tags: ["fundamentals"]
       },
-
-      // Cross family - examples
       {
         id: "cross-straight-lr",
         family: "Cross",
@@ -444,8 +627,6 @@
         diagram: "https://drive.google.com/file/d/1gFdVAc5LztfvGVD1q6r50q6_SvvoOrmx/view?usp=sharing",
         tags: ["offense", "trick"]
       },
-
-      // Cut family - examples
       {
         id: "cut-bottom",
         family: "Cut",
@@ -468,8 +649,6 @@
         diagram: "https://drive.google.com/file/d/1dZngKVKZlvajxFERmbyI3uUmOnt1c8Hl/view?usp=sharing",
         tags: ["offense"]
       },
-
-      // Defense for straight shots
       {
         id: "def-straight-basic",
         family: "Defense Straight",
@@ -481,8 +660,6 @@
         diagram: "https://drive.google.com/file/d/1ovS_GRCAyIq4HoV48PcBIH7z2MRpf0CQ/view?usp=sharing",
         tags: ["defense"]
       },
-
-      // Right Wall Under
       {
         id: "rwu",
         family: "Right Wall",
@@ -494,8 +671,6 @@
         diagram: "https://drive.google.com/file/d/1sfwJQesOrc2vRmslLKYMQOI_wy0PXl8w/view?usp=sharing",
         tags: ["offense", "wall"]
       },
-
-      // Right Wall Over
       {
         id: "rwo",
         family: "Right Wall",
@@ -507,8 +682,6 @@
         diagram: "https://drive.google.com/file/d/1CvMtLlMLdkPAj_rTsefGRLEH09Lo_run/view?usp=sharing",
         tags: ["offense", "wall"]
       },
-
-      // Left Wall Under
       {
         id: "lwu",
         family: "Left Wall",
@@ -520,8 +693,6 @@
         diagram: "https://drive.google.com/file/d/1ou-kd1SJsud1zQ3M8XNwegsbIGLhWeq7/view?usp=sharing",
         tags: ["offense", "wall"]
       },
-
-      // Left Wall Over
       {
         id: "lwo",
         family: "Left Wall",
@@ -533,8 +704,6 @@
         diagram: "https://drive.google.com/file/d/1wB6wfo1eBB8OtxaNLvV6pjgCCFf27Zbf/view?usp=sharing",
         tags: ["offense", "wall"]
       },
-
-      // Defense for wall shots
       {
         id: "def-wall-triangle",
         family: "Defense Wall",
@@ -546,8 +715,6 @@
         diagram: "https://drive.google.com/file/d/1UjAoXRGgWNYaUgKx-xRWDtLY3jf9baWS/view?usp=sharing",
         tags: ["defense", "wall"]
       },
-
-      // Double Bank
       {
         id: "double-bank-rwlw",
         family: "Double Bank",
@@ -570,8 +737,6 @@
         diagram: "https://drive.google.com/file/d/1ia-qSLVZUrnjMJCWnKlwV2Uq7xgU9LSn/view?usp=sharing",
         tags: ["trick", "bank"]
       },
-
-      // Triple Bank
       {
         id: "triple-bank-rw",
         family: "Triple Bank",
@@ -594,8 +759,6 @@
         diagram: "https://drive.google.com/file/d/1GITS8J1FaHZwnr5jskLvKGJWUlY7jg0V/view?usp=sharing",
         tags: ["trick", "bank"]
       },
-
-      // Turkey Shot
       {
         id: "turkey-rw",
         family: "Turkey Shot",
@@ -620,15 +783,11 @@
       }
     ];
 
-    // Build family list from shots
-    const families = Array.from(
-      new Set(SHOTS.map(s => s.family))
-    );
+    const families = Array.from(new Set(SHOTS.map(s => s.family)));
 
     const familySelect = document.getElementById("familySelect");
     const shotSelect = document.getElementById("shotSelect");
     const puck = document.getElementById("puck");
-    const puckInner = document.getElementById("puckInner");
     const shotFamilyPill = document.getElementById("shotFamilyPill");
     const shotNameEl = document.getElementById("shotName");
     const shotVariantEl = document.getElementById("shotVariant");
@@ -639,6 +798,24 @@
     const applyShotBtn = document.getElementById("applyShotBtn");
     const randomShotBtn = document.getElementById("randomShotBtn");
     const faceoffBtn = document.getElementById("faceoffBtn");
+
+    const whiteboardBtn = document.getElementById("whiteboardBtn");
+    const whiteboardModal = document.getElementById("whiteboardModal");
+    const whiteboardFrame = document.getElementById("whiteboardFrame");
+    const whiteboardCanvas = document.getElementById("whiteboardCanvas");
+    const whiteboardTitle = document.getElementById("whiteboardTitle");
+    const penToolBtn = document.getElementById("penToolBtn");
+    const eraserToolBtn = document.getElementById("eraserToolBtn");
+    const whiteboardColor = document.getElementById("whiteboardColor");
+    const whiteboardSize = document.getElementById("whiteboardSize");
+    const clearWhiteboardBtn = document.getElementById("clearWhiteboardBtn");
+    const closeWhiteboardBtn = document.getElementById("closeWhiteboardBtn");
+
+    let currentShot = null;
+    let drawing = false;
+    let whiteboardTool = "pen";
+    let lastX = 0;
+    let lastY = 0;
 
     function populateFamilies() {
       familySelect.innerHTML = "";
@@ -666,6 +843,7 @@
     }
 
     function applyShot(shot) {
+      currentShot = shot;
       const familyColor = FAMILY_COLORS[shot.family] || "#dddddd";
       puck.style.background = makePuckGradient(familyColor);
 
@@ -692,13 +870,132 @@
       if (shot.diagram) {
         diagramLink.href = shot.diagram;
         diagramLink.style.display = "inline-flex";
+        whiteboardBtn.style.display = "inline-flex";
       } else {
         diagramLink.style.display = "none";
+        whiteboardBtn.style.display = "none";
       }
 
       puck.classList.remove("glow");
-      void puck.offsetWidth; // force reflow
+      void puck.offsetWidth;
       puck.classList.add("glow");
+    }
+
+    function drivePreviewUrl(url) {
+      const match = url.match(/\/d\/([^/]+)/);
+      if (match && match[1]) {
+        return `https://drive.google.com/file/d/${match[1]}/preview`;
+      }
+      return url;
+    }
+
+    function resizeWhiteboardCanvas() {
+      const rect = whiteboardCanvas.getBoundingClientRect();
+      if (!rect.width || !rect.height) return;
+
+      const dpr = window.devicePixelRatio || 1;
+      const oldImage = document.createElement("canvas");
+      oldImage.width = whiteboardCanvas.width;
+      oldImage.height = whiteboardCanvas.height;
+
+      if (oldImage.width && oldImage.height) {
+        const oldCtx = oldImage.getContext("2d");
+        oldCtx.drawImage(whiteboardCanvas, 0, 0);
+      }
+
+      whiteboardCanvas.width = Math.round(rect.width * dpr);
+      whiteboardCanvas.height = Math.round(rect.height * dpr);
+
+      const ctx = whiteboardCanvas.getContext("2d");
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+
+      if (oldImage.width && oldImage.height) {
+        ctx.drawImage(oldImage, 0, 0, rect.width, rect.height);
+      }
+    }
+
+    function getCanvasPoint(e) {
+      const rect = whiteboardCanvas.getBoundingClientRect();
+      const point = e.touches ? e.touches[0] : e;
+
+      return {
+        x: point.clientX - rect.left,
+        y: point.clientY - rect.top
+      };
+    }
+
+    function startDrawing(e) {
+      e.preventDefault();
+      drawing = true;
+
+      const point = getCanvasPoint(e);
+      lastX = point.x;
+      lastY = point.y;
+    }
+
+    function draw(e) {
+      if (!drawing) return;
+      e.preventDefault();
+
+      const point = getCanvasPoint(e);
+      const ctx = whiteboardCanvas.getContext("2d");
+
+      ctx.lineCap = "round";
+      ctx.lineJoin = "round";
+      ctx.lineWidth = Number(whiteboardSize.value);
+
+      if (whiteboardTool === "eraser") {
+        ctx.globalCompositeOperation = "destination-out";
+        ctx.strokeStyle = "rgba(0,0,0,1)";
+      } else {
+        ctx.globalCompositeOperation = "source-over";
+        ctx.strokeStyle = whiteboardColor.value;
+      }
+
+      ctx.beginPath();
+      ctx.moveTo(lastX, lastY);
+      ctx.lineTo(point.x, point.y);
+      ctx.stroke();
+
+      lastX = point.x;
+      lastY = point.y;
+    }
+
+    function stopDrawing() {
+      drawing = false;
+    }
+
+    function clearWhiteboard() {
+      const rect = whiteboardCanvas.getBoundingClientRect();
+      const ctx = whiteboardCanvas.getContext("2d");
+      ctx.clearRect(0, 0, rect.width, rect.height);
+    }
+
+    function setWhiteboardTool(tool) {
+      whiteboardTool = tool;
+      penToolBtn.classList.toggle("active", tool === "pen");
+      eraserToolBtn.classList.toggle("active", tool === "eraser");
+    }
+
+    function openWhiteboard() {
+      if (!currentShot || !currentShot.diagram) return;
+
+      whiteboardTitle.textContent = `${currentShot.name}${currentShot.variant ? " • " + currentShot.variant : ""}`;
+      whiteboardFrame.src = drivePreviewUrl(currentShot.diagram);
+      whiteboardModal.classList.add("active");
+      whiteboardModal.setAttribute("aria-hidden", "false");
+      document.body.style.overflow = "hidden";
+
+      setTimeout(() => {
+        resizeWhiteboardCanvas();
+      }, 120);
+    }
+
+    function closeWhiteboard() {
+      whiteboardModal.classList.remove("active");
+      whiteboardModal.setAttribute("aria-hidden", "true");
+      document.body.style.overflow = "";
+      drawing = false;
     }
 
     function init() {
@@ -724,7 +1021,6 @@
     });
 
     randomShotBtn.addEventListener("click", () => {
-      // All shots except faceoff if you want it to feel like game mode
       const pool = SHOTS.filter(s => s.id !== "faceoff");
       const random = pool[Math.floor(Math.random() * pool.length)];
       familySelect.value = random.family;
@@ -741,17 +1037,44 @@
       applyShot(faceoff);
     });
 
-    // Kick it off
+    whiteboardBtn.addEventListener("click", openWhiteboard);
+    closeWhiteboardBtn.addEventListener("click", closeWhiteboard);
+    clearWhiteboardBtn.addEventListener("click", clearWhiteboard);
+
+    penToolBtn.addEventListener("click", () => setWhiteboardTool("pen"));
+    eraserToolBtn.addEventListener("click", () => setWhiteboardTool("eraser"));
+
+    whiteboardCanvas.addEventListener("mousedown", startDrawing);
+    whiteboardCanvas.addEventListener("mousemove", draw);
+    window.addEventListener("mouseup", stopDrawing);
+
+    whiteboardCanvas.addEventListener("touchstart", startDrawing, { passive: false });
+    whiteboardCanvas.addEventListener("touchmove", draw, { passive: false });
+    window.addEventListener("touchend", stopDrawing);
+    window.addEventListener("touchcancel", stopDrawing);
+
+    window.addEventListener("resize", () => {
+      if (whiteboardModal.classList.contains("active")) {
+        resizeWhiteboardCanvas();
+      }
+    });
+
+    window.addEventListener("keydown", (e) => {
+      if (e.key === "Escape" && whiteboardModal.classList.contains("active")) {
+        closeWhiteboard();
+      }
+    });
+
     init();
 
-  if ("serviceWorker" in navigator) {
-    window.addEventListener("load", function () {
-      navigator.serviceWorker.register("service-worker.js")
-        .catch(function (err) {
-          console.log("Service worker registration failed", err);
-        });
-    });
-  }
-</script>
+    if ("serviceWorker" in navigator) {
+      window.addEventListener("load", function () {
+        navigator.serviceWorker.register("service-worker.js")
+          .catch(function (err) {
+            console.log("Service worker registration failed", err);
+          });
+      });
+    }
+  </script>
 </body>
 </html>
